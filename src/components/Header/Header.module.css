@@ -1,0 +1,19 @@
+.appHeader {
+  height: 50px;
+  padding: 0;
+  background: #1f1f1f;
+  border-bottom: 1px solid #303030;
+  display: flex;
+  align-items: center;
+  line-height: 50px;
+}
+
+.menuContainer {
+  width: 100%;
+  border-bottom: none;
+}
+
+.menuContainer :global(.ant-menu) {
+  background: transparent;
+  border-bottom: none;
+}
