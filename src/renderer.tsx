@@ -26,8 +26,27 @@
  * ```
  */
 
+import 'antd/dist/reset.css';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { Button } from 'antd';
 import './index.css';
 
-console.log(
-  '👋 This message is being logged by "renderer.ts", included via Vite',
+const App = () => {
+  return (
+    <div>
+      <h1>💖 Hello World!</h1>
+      <p>Welcome to your Electron React Antd application.</p>
+      <Button type="primary">Antd Button</Button>
+    </div>
+  );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
 );
+
+console.log('👋 This message is being logged by "renderer.tsx", included via Vite');
