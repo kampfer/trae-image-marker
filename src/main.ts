@@ -9,9 +9,12 @@ if (started) {
 }
 
 const createWindow = () => {
-  // Create the browser window.
+  const isDev = !!MAIN_WINDOW_VITE_DEV_SERVER_URL;
+
   const mainWindow = new BrowserWindow({
-    fullscreen: true,
+    fullscreen: !isDev,
+    width: isDev ? 1200 : undefined,
+    height: isDev ? 800 : undefined,
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
