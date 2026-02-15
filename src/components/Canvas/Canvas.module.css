@@ -1,6 +1,6 @@
 .canvasArea {
   flex: 1;
-  background: #0a0a0a;
+  background: #1e1e1e;
   overflow: auto;
   position: relative;
 }
@@ -12,12 +12,53 @@
   transform: translateY(-50%);
 }
 
+.floatingToolbar :global(.ant-float-btn) {
+  background: #3c3c3c;
+  border: 1px solid #454545;
+  color: #cccccc;
+}
+
+.floatingToolbar :global(.ant-float-btn:hover) {
+  background: #094771;
+  color: #ffffff;
+}
+
+.floatingToolbar :global(.ant-float-btn-body) {
+  background: transparent;
+}
+
+.floatingToolbar :global(.ant-float-btn-icon) {
+  color: inherit;
+}
+
 .canvasContent {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.45);
-  font-size: 18px;
+  color: #d4d4d4;
+  font-size: 14px;
+  font-family: Consolas, 'Courier New', monospace;
+}
+
+.annotationLine {
+  stroke: #4fc1ff;
+  stroke-width: 2px;
+}
+
+.annotationText {
+  fill: #d4d4d4;
+  font-size: 14px;
+  font-family: Consolas, 'Courier New', monospace;
+}
+
+.annotationSelected {
+  stroke: #007acc;
+}
+
+.controlPoint {
+  fill: #ffffff;
+  width: 8px;
+  height: 8px;
 }

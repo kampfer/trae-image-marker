@@ -1,19 +1,55 @@
 .appHeader {
   height: 50px;
   padding: 0;
-  background: #1f1f1f;
-  border-bottom: 1px solid #303030;
+  background: #3c3c3c;
+  border-bottom: 1px solid #000000;
   display: flex;
   align-items: center;
   line-height: 50px;
 }
 
-.menuContainer {
-  width: 100%;
-  border-bottom: none;
+.menuItem {
+  padding: 0 16px;
+  color: #cccccc;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.menuItem:hover {
+  background: #2a2d2e;
+  color: #ffffff;
 }
 
 .menuContainer :global(.ant-menu) {
   background: transparent;
   border-bottom: none;
+}
+
+.menuContainer :global(.ant-menu-item) {
+  color: #cccccc;
+}
+
+.menuContainer :global(.ant-menu-item:hover) {
+  background: #2a2d2e;
+  color: #ffffff;
+}
+
+.menuContainer :global(.ant-menu-item-selected) {
+  background: #094771;
+  color: #ffffff;
+}
+
+.menuContainer :global(.ant-dropdown-menu) {
+  background: #252526;
+  border: 1px solid #454545;
+}
+
+.menuContainer :global(.ant-dropdown-menu-item) {
+  color: #cccccc;
+}
+
+.menuContainer :global(.ant-dropdown-menu-item:hover) {
+  background: #094771;
+  color: #ffffff;
 }

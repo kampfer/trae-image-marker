@@ -8,6 +8,8 @@
 ┌─────────────────────────────────────┐
 │         Header（顶部菜单）          │
 ├─────────────────────────────────────┤
+│      TabsBar（标签页栏）           │
+├─────────────────────────────────────┤
 │                                 │
 │  ┌────┐                          │
 │  │    │                          │
@@ -37,7 +39,23 @@
   - 底部边框：暗灰色（#303030）
   - 完全复用 Ant Design 菜单样式
 
-### 2. Canvas（中间画布区域）
+### 2. TabsBar（标签页栏）
+
+- **组件**：`src/components/TabsBar/TabsBar.tsx`
+- **样式**：`src/components/TabsBar/TabsBar.module.css`
+- **功能**：
+  - 使用 Ant Design `Tabs` 组件（可编辑卡片模式）
+  - 显示打开的图像标签页（图像1.jpg、图像2.png、图像3.jpg）
+  - 支持标签页切换和关闭
+- **样式特点**：
+  - 高度：40px
+  - 背景：深灰色（#1f1f1f）
+  - 底部边框：暗灰色（#303030）
+  - 标签页背景：深灰色（#2a2a2a）
+  - 激活标签页背景：较深灰色（#3a3a3a）
+  - 激活标签页边框：蓝色（#4096ff）
+
+### 3. Canvas（中间画布区域）
 
 - **组件**：`src/components/Canvas/Canvas.tsx`
 - **样式**：`src/components/Canvas/Canvas.module.css`
@@ -54,7 +72,7 @@
   - 按钮形状：方形（square）
   - 按钮尺寸：大尺寸（large）
 
-### 3. Footer（底部状态栏）
+### 4. Footer（底部状态栏）
 
 - **组件**：`src/components/Footer/Footer.tsx`
 - **样式**：`src/components/Footer/Footer.module.css`

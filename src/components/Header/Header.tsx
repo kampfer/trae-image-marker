@@ -1,45 +1,47 @@
-import { Layout, Menu } from 'antd';
+import { Dropdown, Layout, Menu } from 'antd';
 import React from 'react';
 
 import styles from './Header.module.css';
 
 const { Header: LayoutHeader } = Layout;
 
-interface HeaderProps {
-  activeTab: string;
-  onTabChange: (key: string) => void;
-}
-
-class Header extends React.Component<HeaderProps, Record<string, never>> {
-  private menuItems = [
+class Header extends React.Component<Record<string, never>, Record<string, never>> {
+  private fileMenuItems = [
     {
-      key: '1',
-      label: '项目1',
+      key: 'new-annotation',
+      label: '新建标注文件',
     },
     {
-      key: '2',
-      label: '项目2',
+      key: 'open-annotation',
+      label: '打开标注文件',
     },
     {
-      key: '3',
-      label: '项目3',
+      key: 'open-image',
+      label: '打开图片',
+    },
+    {
+      key: 'save-annotation',
+      label: '保存标注文件',
+    },
+    {
+      key: 'export-annotation',
+      label: '导出标注文件',
     },
   ];
 
-  private handleMenuSelect = (info: any) => {
-    this.props.onTabChange(info.key);
+  private handleFileMenuClick = (info: any) => {
+    console.log(`点击了文件菜单: ${info.key}`);
   };
 
   render() {
     return (
       <LayoutHeader className={styles.appHeader}>
-        <Menu
-          mode="horizontal"
-          selectedKeys={[this.props.activeTab]}
-          items={this.menuItems}
-          onSelect={this.handleMenuSelect}
-          className={styles.menuContainer}
-        />
+        <Dropdown
+          menu={{ items: this.fileMenuItems, onClick: this.handleFileMenuClick }}
+          placement="bottomLeft"
+        >
+          <div className={styles.menuItem}>文件</div>
+        </Dropdown>
       </LayoutHeader>
     );
   }
