@@ -1,31 +1,44 @@
 .tabsBar {
   height: 40px;
   background: #252526;
-  border-bottom: 1px solid #000000;
   display: flex;
   align-items: center;
-  padding: 0 16px;
 }
 
 .tabsContainer {
   width: 100%;
+  height: 100%;
 }
 
 .tabsContainer :global(.ant-tabs) {
   background: transparent;
+  height: 100%;
 }
 
 .tabsContainer :global(.ant-tabs-nav) {
   margin-bottom: 0;
+  height: 100%;
+}
+
+.tabsContainer :global(.ant-tabs-nav-list) {
+  height: 100%;
 }
 
 .tabsContainer :global(.ant-tabs-tab) {
   background: #2d2d2d;
-  border: 1px solid #454545;
-  border-radius: 4px;
-  margin-right: 8px;
-  padding: 4px 12px;
+  border: none;
+  border-right: 1px solid #252526;
+  border-top: 1px solid transparent;
+  margin: 0;
+  padding: 0 16px;
   color: #969696;
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  min-width: 120px;
+  max-width: 200px;
+  border-radius: 0 !important;
 }
 
 .tabsContainer :global(.ant-tabs-tab:hover) {
@@ -36,14 +49,38 @@
 .tabsContainer :global(.ant-tabs-tab-active) {
   background: #1e1e1e;
   color: #ffffff;
-  border-color: #007acc;
-  border-top: 2px solid #007acc;
+  border-top-color: #007acc;
+}
+
+.tabsContainer :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+  color: #ffffff;
+}
+
+.tabsContainer :global(.ant-tabs-tab-btn) {
+  color: #969696;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tabsContainer :global(.ant-tabs-tab:hover .ant-tabs-tab-btn) {
+  color: #ffffff;
 }
 
 .tabsContainer :global(.ant-tabs-tab-remove) {
   color: #969696;
+  margin-left: 8px;
+  padding: 2px;
+  border-radius: 3px;
+  transition: all 0.2s;
 }
 
 .tabsContainer :global(.ant-tabs-tab-remove:hover) {
   color: #ffffff;
+  background: #424242;
+}
+
+.tabsContainer :global(.ant-tabs-ink-bar) {
+  display: none;
 }

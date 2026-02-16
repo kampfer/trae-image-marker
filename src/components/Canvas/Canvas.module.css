@@ -8,8 +8,7 @@
 .floatingToolbar {
   position: absolute;
   left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 20px;
 }
 
 .floatingToolbar :global(.ant-float-btn) {
