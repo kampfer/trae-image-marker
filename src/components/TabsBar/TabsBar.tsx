@@ -1,52 +1,66 @@
-import { CloseOutlined } from '@ant-design/icons';
 import { Tabs } from 'antd';
 import React from 'react';
+import { connect } from 'react-redux';
+
+import { RootState, AppDispatch } from '../../store';
+import { setActiveImage, removeImage } from '../../store/slices/imageSlice';
 
 import styles from './TabsBar.module.css';
 
 interface TabsBarProps {
-  activeTab: string;
-  onTabChange: (key: string) => void;
-  onTabClose: (key: string) => void;
+  images: Array<{
+    id: string;
+    name: string;
+    path: string;
+    width: number;
+    height: number;
+    createdAt: string;
+  }>;
+  activeImageId: string | null;
+  dispatch: AppDispatch;
 }
 
-class TabsBar extends React.Component<TabsBarProps, Record<string, never>> {
-  private tabItems = [
-    {
-      key: 'tab1',
-      label: '图像1.jpg',
-    },
-    {
-      key: 'tab2',
-      label: '图像2.png',
-    },
-    {
-      key: 'tab3',
-      label: '图像3.jpg',
-    },
-  ];
+class TabsBar extends React.Component<TabsBarProps> {
+  handleTabChange = (key: string) => {
+    this.props.dispatch(setActiveImage(key));
+  };
 
-  private handleTabEdit = (targetKey: string | React.MouseEvent, action: 'add' | 'remove') => {
-    if (action === 'remove' && typeof targetKey === 'string') {
-      this.props.onTabClose(targetKey);
-    }
+  handleTabClose = (key: string) => {
+    this.props.dispatch(removeImage(key));
   };
 
   render() {
+    const { images, activeImageId } = this.props;
+
+    const items = images.map(image => ({
+      key: image.id,
+      label: image.name,
+      closable: true,
+    }));
+
     return (
       <div className={styles.tabsBar}>
         <Tabs
+          activeKey={activeImageId || ''}
+          items={items}
+          onChange={this.handleTabChange}
+          onEdit={this.handleTabClose}
           type="editable-card"
-          activeKey={this.props.activeTab}
-          items={this.tabItems}
-          onChange={this.props.onTabChange}
-          onEdit={this.handleTabEdit}
-          hideAdd
-          className={styles.tabsContainer}
+          size="small"
+          className={styles.tabs}
         />
       </div>
     );
   }
 }
 
-export default TabsBar;
+const mapStateToProps = (state: RootState) => ({
+  images: state.image.images,
+  activeImageId: state.image.activeImageId,
+});
+
+const mapDispatchToProps = (dispatch: AppDispatch) => ({
+  dispatch,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(TabsBar);

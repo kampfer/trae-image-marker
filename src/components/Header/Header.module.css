@@ -1,55 +1,42 @@
-.appHeader {
-  height: 50px;
-  padding: 0;
-  background: #3c3c3c;
-  border-bottom: 1px solid #000000;
+.header {
+  background-color: #252526;
+  border-bottom: 1px solid #454545;
+  height: 32px;
   display: flex;
   align-items: center;
-  line-height: 50px;
-}
-
-.menuItem {
-  padding: 0 16px;
-  color: #cccccc;
-  cursor: pointer;
+  padding: 0 10px;
   user-select: none;
-  transition: background 0.2s;
 }
 
-.menuItem:hover {
-  background: #2a2d2e;
-  color: #ffffff;
+.menuBar {
+  display: flex;
+  align-items: center;
 }
 
-.menuContainer :global(.ant-menu) {
+.menuButton {
   background: transparent;
-  border-bottom: none;
-}
-
-.menuContainer :global(.ant-menu-item) {
+  border: none;
   color: #cccccc;
+  padding: 0 10px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 0;
 }
 
-.menuContainer :global(.ant-menu-item:hover) {
-  background: #2a2d2e;
+.menuButton:hover {
+  background-color: #2a2d2e;
   color: #ffffff;
 }
 
-.menuContainer :global(.ant-menu-item-selected) {
-  background: #094771;
-  color: #ffffff;
+.menuButton:focus {
+  outline: none;
 }
 
-.menuContainer :global(.ant-dropdown-menu) {
-  background: #252526;
-  border: 1px solid #454545;
-}
-
-.menuContainer :global(.ant-dropdown-menu-item) {
-  color: #cccccc;
-}
-
-.menuContainer :global(.ant-dropdown-menu-item:hover) {
-  background: #094771;
+.menuButton:active {
+  background-color: #0e639c;
   color: #ffffff;
 }
