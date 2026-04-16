@@ -42,6 +42,21 @@ const canvasSlice = createSlice({
       const { imageId, angle } = action.payload;
       state.rotationByImage[imageId] = angle;
     },
+    addRotation: (state, action: PayloadAction<{ imageId: string; delta: number }>) => {
+      const { imageId, delta } = action.payload;
+      const currentRotation = state.rotationByImage[imageId] || 0;
+      if (delta === 0) {
+        state.rotationByImage[imageId] = 0;
+      } else {
+        let newRotation = currentRotation + delta;
+        if (newRotation > 180) {
+          newRotation = newRotation - 360;
+        } else if (newRotation < -180) {
+          newRotation = newRotation + 360;
+        }
+        state.rotationByImage[imageId] = newRotation;
+      }
+    },
     toggleAuxiliaryLines: (state, action: PayloadAction<string>) => {
       const imageId = action.payload;
       state.showAuxiliaryLinesByImage[imageId] = !state.showAuxiliaryLinesByImage[imageId];
@@ -49,5 +64,13 @@ const canvasSlice = createSlice({
   },
 });
 
-export const { zoomIn, zoomOut, fitWindow, actualSize, setRotation, toggleAuxiliaryLines } = canvasSlice.actions;
+export const {
+  zoomIn,
+  zoomOut,
+  fitWindow,
+  actualSize,
+  setRotation,
+  addRotation,
+  toggleAuxiliaryLines,
+} = canvasSlice.actions;
 export default canvasSlice.reducer;

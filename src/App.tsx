@@ -3,10 +3,9 @@ import React from 'react';
 import { Provider } from 'react-redux';
 
 import styles from './App.module.css';
-import Header from './components/Header';
-import TabsBar from './components/TabsBar';
-import PixiCanvas from './components/PixiCanvas';
 import Footer from './components/Footer';
+import MenuBar from './components/MenuBar';
+import TabsBar from './components/TabsBar';
 import store from './store';
 
 const { Content } = Layout;
@@ -33,11 +32,9 @@ const App: React.FC = () => {
     >
       <Provider store={store}>
         <Layout className={styles.appLayout}>
-          <Header />
+          <MenuBar />
           <TabsBar />
-          <Content className={styles.appMiddle}>
-            <PixiCanvas />
-          </Content>
+          <Content className={styles.appMiddle} />
           <Footer />
         </Layout>
       </Provider>

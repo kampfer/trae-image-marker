@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import { RootState, AppDispatch } from '../../store';
 import { setActiveImage, removeImage } from '../../store/slices/imageSlice';
+import WorkSpace from '../WorkSpace';
 
 import styles from './TabsBar.module.css';
 
@@ -36,6 +37,7 @@ class TabsBar extends React.Component<TabsBarProps> {
       key: image.id,
       label: image.name,
       closable: true,
+      children: <WorkSpace imageId={image.id} />,
     }));
 
     return (

@@ -13,32 +13,21 @@ import {
   selectHasSelectedAnnotations,
   selectActiveImageZoom,
 } from '../../store/selectors';
-import {
-  setActiveTool,
-  ToolType,
-} from '../../store/slices/toolSlice';
-import {
-  clearAllAnnotations,
-  deleteSelectedAnnotations,
-} from '../../store/slices/annotationSlice';
-import {
-  undo,
-  redo,
-} from '../../store/slices/historySlice';
+import { clearAllAnnotations, deleteSelectedAnnotations } from '../../store/slices/annotationSlice';
 import {
   zoomIn,
   zoomOut,
   fitWindow,
   actualSize,
-  setRotation,
+  addRotation,
 } from '../../store/slices/canvasSlice';
-import {
-  newMarkerFile,
-} from '../../store/slices/fileSlice';
+import { newMarkerFile } from '../../store/slices/fileSlice';
+import { undo, redo } from '../../store/slices/historySlice';
+import { setActiveTool, ToolType } from '../../store/slices/toolSlice';
 
-import styles from './Header.module.css';
+import styles from './MenuBar.module.css';
 
-interface HeaderProps {
+interface MenuBarProps {
   activeImageId: string | null;
   isFileOpened: boolean;
   isModified: boolean;
@@ -50,41 +39,35 @@ interface HeaderProps {
   dispatch: AppDispatch;
 }
 
-class Header extends React.Component<HeaderProps> {
+class MenuBar extends React.Component<MenuBarProps> {
   handleNewMarkerFile = () => {
     this.props.dispatch(newMarkerFile());
   };
 
   handleOpenMarkerFile = () => {
-    // 实现打开文件的逻辑
     console.log('打开文件');
   };
 
   handleSaveMarkerFile = () => {
-    // 实现保存文件的逻辑
     console.log('保存文件');
   };
 
   handleSaveMarkerFileAs = () => {
-    // 实现另存为文件的逻辑
     console.log('另存为文件');
   };
 
   handleAddImageToFile = () => {
-    // 实现添加图片的逻辑
     console.log('添加图片');
   };
 
   handleRemoveImageFromFile = () => {
     if (this.props.activeImageId) {
-      // 实现删除图片的逻辑
       console.log('删除图片', this.props.activeImageId);
     }
   };
 
   handleExportImageFromFile = () => {
     if (this.props.activeImageId) {
-      // 实现导出图片的逻辑
       console.log('导出图片', this.props.activeImageId);
     }
   };
@@ -143,29 +126,37 @@ class Header extends React.Component<HeaderProps> {
 
   handleRotateClockwise = () => {
     if (this.props.activeImageId) {
-      this.props.dispatch(setRotation({ imageId: this.props.activeImageId, angle: 90 }));
+      this.props.dispatch(addRotation({ imageId: this.props.activeImageId, delta: 90 }));
     }
   };
 
   handleRotateCounterClockwise = () => {
     if (this.props.activeImageId) {
-      this.props.dispatch(setRotation({ imageId: this.props.activeImageId, angle: -90 }));
+      this.props.dispatch(addRotation({ imageId: this.props.activeImageId, delta: -90 }));
     }
   };
 
   handleResetRotation = () => {
     if (this.props.activeImageId) {
-      this.props.dispatch(setRotation({ imageId: this.props.activeImageId, angle: 0 }));
+      this.props.dispatch(addRotation({ imageId: this.props.activeImageId, delta: 0 }));
     }
   };
 
   handleOpenDevTools = () => {
-    // 实现打开开发者工具的逻辑
     console.log('打开开发者工具');
   };
 
   render() {
-    const { activeImageId, isFileOpened, isModified, canUndo, canRedo, hasAnnotations, hasSelectedAnnotations, zoom } = this.props;
+    const {
+      activeImageId,
+      isFileOpened,
+      isModified,
+      canUndo,
+      canRedo,
+      hasAnnotations,
+      hasSelectedAnnotations,
+      zoom,
+    } = this.props;
 
     const fileMenu = (
       <Menu>
@@ -175,21 +166,41 @@ class Header extends React.Component<HeaderProps> {
         <Menu.Item key="file-open" onClick={this.handleOpenMarkerFile}>
           打开
         </Menu.Item>
-        <Menu.Item key="file-save" onClick={this.handleSaveMarkerFile} disabled={!isFileOpened || !isModified}>
+        <Menu.Item
+          key="file-save"
+          onClick={this.handleSaveMarkerFile}
+          disabled={!isFileOpened || !isModified}
+        >
           保存 (Ctrl+S)
         </Menu.Item>
-        <Menu.Item key="file-save-as" onClick={this.handleSaveMarkerFileAs} disabled={!isFileOpened}>
+        <Menu.Item
+          key="file-save-as"
+          onClick={this.handleSaveMarkerFileAs}
+          disabled={!isFileOpened}
+        >
           另存为 (Ctrl+Shift+S)
         </Menu.Item>
         <Menu.Divider />
-        <Menu.Item key="file-add-image" onClick={this.handleAddImageToFile} disabled={!isFileOpened}>
+        <Menu.Item
+          key="file-add-image"
+          onClick={this.handleAddImageToFile}
+          disabled={!isFileOpened}
+        >
           添加图片
         </Menu.Item>
-        <Menu.Item key="file-remove-image" onClick={this.handleRemoveImageFromFile} disabled={!isFileOpened || !activeImageId}>
+        <Menu.Item
+          key="file-remove-image"
+          onClick={this.handleRemoveImageFromFile}
+          disabled={!isFileOpened || !activeImageId}
+        >
           删除图片
         </Menu.Item>
         <Menu.Divider />
-        <Menu.Item key="file-export-png" onClick={this.handleExportImageFromFile} disabled={!isFileOpened || !activeImageId}>
+        <Menu.Item
+          key="file-export-png"
+          onClick={this.handleExportImageFromFile}
+          disabled={!isFileOpened || !activeImageId}
+        >
           导出PNG
         </Menu.Item>
       </Menu>
@@ -204,10 +215,18 @@ class Header extends React.Component<HeaderProps> {
           重做 (Ctrl+Y)
         </Menu.Item>
         <Menu.Divider />
-        <Menu.Item key="edit-clear-all" onClick={this.handleClearAllAnnotations} disabled={!activeImageId || !hasAnnotations}>
+        <Menu.Item
+          key="edit-clear-all"
+          onClick={this.handleClearAllAnnotations}
+          disabled={!activeImageId || !hasAnnotations}
+        >
           清除所有标注
         </Menu.Item>
-        <Menu.Item key="edit-delete-selected" onClick={this.handleDeleteSelectedAnnotations} disabled={!activeImageId || !hasSelectedAnnotations}>
+        <Menu.Item
+          key="edit-delete-selected"
+          onClick={this.handleDeleteSelectedAnnotations}
+          disabled={!activeImageId || !hasSelectedAnnotations}
+        >
           删除选中标注 (Delete)
         </Menu.Item>
       </Menu>
@@ -215,20 +234,40 @@ class Header extends React.Component<HeaderProps> {
 
     const annotationMenu = (
       <Menu>
-        <Menu.Item key="tool-horizontal-line" onClick={() => this.handleSetActiveTool('horizontal-line')} disabled={!isFileOpened || !activeImageId}>
+        <Menu.Item
+          key="tool-horizontal-line"
+          onClick={() => this.handleSetActiveTool('horizontal-line')}
+          disabled={!isFileOpened || !activeImageId}
+        >
           水平线段
         </Menu.Item>
-        <Menu.Item key="tool-vertical-line" onClick={() => this.handleSetActiveTool('vertical-line')} disabled={!isFileOpened || !activeImageId}>
+        <Menu.Item
+          key="tool-vertical-line"
+          onClick={() => this.handleSetActiveTool('vertical-line')}
+          disabled={!isFileOpened || !activeImageId}
+        >
           垂直线段
         </Menu.Item>
         <Menu.Divider />
-        <Menu.Item key="tool-normal-protractor" onClick={() => this.handleSetActiveTool('normal-protractor')} disabled={!isFileOpened || !activeImageId}>
+        <Menu.Item
+          key="tool-normal-protractor"
+          onClick={() => this.handleSetActiveTool('normal-protractor')}
+          disabled={!isFileOpened || !activeImageId}
+        >
           普通量角器
         </Menu.Item>
-        <Menu.Item key="tool-horizontal-protractor" onClick={() => this.handleSetActiveTool('horizontal-protractor')} disabled={!isFileOpened || !activeImageId}>
+        <Menu.Item
+          key="tool-horizontal-protractor"
+          onClick={() => this.handleSetActiveTool('horizontal-protractor')}
+          disabled={!isFileOpened || !activeImageId}
+        >
           水平量角器
         </Menu.Item>
-        <Menu.Item key="tool-vertical-protractor" onClick={() => this.handleSetActiveTool('vertical-protractor')} disabled={!isFileOpened || !activeImageId}>
+        <Menu.Item
+          key="tool-vertical-protractor"
+          onClick={() => this.handleSetActiveTool('vertical-protractor')}
+          disabled={!isFileOpened || !activeImageId}
+        >
           垂直量角器
         </Menu.Item>
       </Menu>
@@ -236,27 +275,51 @@ class Header extends React.Component<HeaderProps> {
 
     const imageMenu = (
       <Menu>
-        <Menu.Item key="image-zoom-in" onClick={this.handleZoomIn} disabled={!activeImageId || (zoom && zoom >= 800)}>
+        <Menu.Item
+          key="image-zoom-in"
+          onClick={this.handleZoomIn}
+          disabled={!activeImageId || (zoom && zoom >= 800)}
+        >
           放大 (Ctrl++)
         </Menu.Item>
-        <Menu.Item key="image-zoom-out" onClick={this.handleZoomOut} disabled={!activeImageId || (zoom && zoom <= 10)}>
+        <Menu.Item
+          key="image-zoom-out"
+          onClick={this.handleZoomOut}
+          disabled={!activeImageId || (zoom && zoom <= 10)}
+        >
           缩小 (Ctrl+-)
         </Menu.Item>
         <Menu.Divider />
         <Menu.Item key="image-fit-window" onClick={this.handleFitWindow} disabled={!activeImageId}>
           适应窗口 (Ctrl+0)
         </Menu.Item>
-        <Menu.Item key="image-actual-size" onClick={this.handleActualSize} disabled={!activeImageId}>
+        <Menu.Item
+          key="image-actual-size"
+          onClick={this.handleActualSize}
+          disabled={!activeImageId}
+        >
           实际大小 (Ctrl+1)
         </Menu.Item>
         <Menu.Divider />
-        <Menu.Item key="image-rotate" onClick={this.handleRotateClockwise} disabled={!activeImageId}>
+        <Menu.Item
+          key="image-rotate"
+          onClick={this.handleRotateClockwise}
+          disabled={!activeImageId}
+        >
           顺时针旋转 (Ctrl+R)
         </Menu.Item>
-        <Menu.Item key="image-rotate-counter" onClick={this.handleRotateCounterClockwise} disabled={!activeImageId}>
+        <Menu.Item
+          key="image-rotate-counter"
+          onClick={this.handleRotateCounterClockwise}
+          disabled={!activeImageId}
+        >
           逆时针旋转 (Ctrl+Shift+R)
         </Menu.Item>
-        <Menu.Item key="image-reset-rotation" onClick={this.handleResetRotation} disabled={!activeImageId}>
+        <Menu.Item
+          key="image-reset-rotation"
+          onClick={this.handleResetRotation}
+          disabled={!activeImageId}
+        >
           重置旋转 (Ctrl+Shift+0)
         </Menu.Item>
       </Menu>
@@ -271,24 +334,22 @@ class Header extends React.Component<HeaderProps> {
     );
 
     return (
-      <div className={styles.header}>
-        <div className={styles.menuBar}>
-          <Dropdown overlay={fileMenu} trigger={['click']}>
-            <Button className={styles.menuButton}>文件</Button>
-          </Dropdown>
-          <Dropdown overlay={editMenu} trigger={['click']}>
-            <Button className={styles.menuButton}>编辑</Button>
-          </Dropdown>
-          <Dropdown overlay={annotationMenu} trigger={['click']}>
-            <Button className={styles.menuButton}>标注</Button>
-          </Dropdown>
-          <Dropdown overlay={imageMenu} trigger={['click']}>
-            <Button className={styles.menuButton}>图片</Button>
-          </Dropdown>
-          <Dropdown overlay={helpMenu} trigger={['click']}>
-            <Button className={styles.menuButton}>帮助</Button>
-          </Dropdown>
-        </div>
+      <div className={styles.menuBar}>
+        <Dropdown overlay={fileMenu} trigger={['click']}>
+          <Button className={styles.menuButton}>文件</Button>
+        </Dropdown>
+        <Dropdown overlay={editMenu} trigger={['click']}>
+          <Button className={styles.menuButton}>编辑</Button>
+        </Dropdown>
+        <Dropdown overlay={annotationMenu} trigger={['click']}>
+          <Button className={styles.menuButton}>标注</Button>
+        </Dropdown>
+        <Dropdown overlay={imageMenu} trigger={['click']}>
+          <Button className={styles.menuButton}>图片</Button>
+        </Dropdown>
+        <Dropdown overlay={helpMenu} trigger={['click']}>
+          <Button className={styles.menuButton}>帮助</Button>
+        </Dropdown>
       </div>
     );
   }
@@ -302,8 +363,12 @@ const mapStateToProps = (state: RootState) => {
     isModified: state.file.isModified,
     canUndo: activeImageId ? state.history.pastByImage[activeImageId]?.length > 0 : false,
     canRedo: activeImageId ? state.history.futureByImage[activeImageId]?.length > 0 : false,
-    hasAnnotations: activeImageId ? (state.annotation.annotationsByImage[activeImageId]?.length || 0) > 0 : false,
-    hasSelectedAnnotations: activeImageId ? (state.annotation.selectedAnnotationsByImage[activeImageId]?.length || 0) > 0 : false,
+    hasAnnotations: activeImageId
+      ? (state.annotation.annotationsByImage[activeImageId]?.length || 0) > 0
+      : false,
+    hasSelectedAnnotations: activeImageId
+      ? (state.annotation.selectedAnnotationsByImage[activeImageId]?.length || 0) > 0
+      : false,
     zoom: activeImageId ? state.canvas.zoomByImage[activeImageId] || 100 : null,
   };
 };
@@ -312,4 +377,4 @@ const mapDispatchToProps = (dispatch: AppDispatch) => ({
   dispatch,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Header);
+export default connect(mapStateToProps, mapDispatchToProps)(MenuBar);

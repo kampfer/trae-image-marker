@@ -1,4 +1,4 @@
-.header {
+.menuBar {
   background-color: #252526;
   border-bottom: 1px solid #454545;
   height: 32px;
@@ -8,14 +8,9 @@
   user-select: none;
 }
 
-.menuBar {
-  display: flex;
-  align-items: center;
-}
-
 .menuButton {
   background: transparent;
-  border: none;
+  border-color: transparent;
   color: #cccccc;
   padding: 0 10px;
   height: 32px;
