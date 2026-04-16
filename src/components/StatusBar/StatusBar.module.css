@@ -1,4 +1,4 @@
-.footer {
+.statusBar {
   background-color: #252526;
   border-top: 1px solid #454545;
   height: 24px;
@@ -9,7 +9,7 @@
   user-select: none;
 }
 
-.footerItem {
+.statusItem {
   margin-right: 20px;
   display: flex;
   align-items: center;

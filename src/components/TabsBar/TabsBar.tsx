@@ -33,7 +33,11 @@ class TabsBar extends React.Component<TabsBarProps> {
   render() {
     const { images, activeImageId } = this.props;
 
-    const items = images.map(image => ({
+    if (images.length === 0) {
+      return null;
+    }
+
+    const items = images.map((image) => ({
       key: image.id,
       label: image.name,
       closable: true,

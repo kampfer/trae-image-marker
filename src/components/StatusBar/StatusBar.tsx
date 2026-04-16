@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 
 import { RootState } from '../../store';
 
-import styles from './Footer.module.css';
+import styles from './StatusBar.module.css';
 
-interface FooterProps {
+interface StatusBarProps {
   currentFile: string | null;
   activeImageId: string | null;
   activeImage: {
@@ -20,7 +20,7 @@ interface FooterProps {
   rotation: number | null;
 }
 
-class Footer extends React.Component<FooterProps> {
+class StatusBar extends React.Component<StatusBarProps> {
   render() {
     const { currentFile, activeImage, zoom, rotation } = this.props;
 
@@ -28,20 +28,20 @@ class Footer extends React.Component<FooterProps> {
     const imageSize = activeImage ? `${activeImage.width} x ${activeImage.height}` : '无图片';
 
     return (
-      <div className={styles.footer}>
-        <div className={styles.footerItem}>
+      <div className={styles.statusBar}>
+        <div className={styles.statusItem}>
           <span className={styles.label}>文件: </span>
           <span className={styles.value}>{fileName}</span>
         </div>
-        <div className={styles.footerItem}>
+        <div className={styles.statusItem}>
           <span className={styles.label}>缩放: </span>
           <span className={styles.value}>{zoom || '100'}%</span>
         </div>
-        <div className={styles.footerItem}>
+        <div className={styles.statusItem}>
           <span className={styles.label}>旋转: </span>
           <span className={styles.value}>{rotation || 0}°</span>
         </div>
-        <div className={styles.footerItem}>
+        <div className={styles.statusItem}>
           <span className={styles.label}>尺寸: </span>
           <span className={styles.value}>{imageSize}</span>
         </div>
@@ -65,4 +65,4 @@ const mapStateToProps = (state: RootState) => {
   };
 };
 
-export default connect(mapStateToProps)(Footer);
+export default connect(mapStateToProps)(StatusBar);

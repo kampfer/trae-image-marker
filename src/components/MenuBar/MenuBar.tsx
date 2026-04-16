@@ -1,4 +1,5 @@
-import { Dropdown, Menu, Button } from 'antd';
+import { Dropdown, Button } from 'antd';
+import type { MenuProps } from 'antd';
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -158,196 +159,171 @@ class MenuBar extends React.Component<MenuBarProps> {
       zoom,
     } = this.props;
 
-    const fileMenu = (
-      <Menu>
-        <Menu.Item key="file-new" onClick={this.handleNewMarkerFile}>
-          新建
-        </Menu.Item>
-        <Menu.Item key="file-open" onClick={this.handleOpenMarkerFile}>
-          打开
-        </Menu.Item>
-        <Menu.Item
-          key="file-save"
-          onClick={this.handleSaveMarkerFile}
-          disabled={!isFileOpened || !isModified}
-        >
-          保存 (Ctrl+S)
-        </Menu.Item>
-        <Menu.Item
-          key="file-save-as"
-          onClick={this.handleSaveMarkerFileAs}
-          disabled={!isFileOpened}
-        >
-          另存为 (Ctrl+Shift+S)
-        </Menu.Item>
-        <Menu.Divider />
-        <Menu.Item
-          key="file-add-image"
-          onClick={this.handleAddImageToFile}
-          disabled={!isFileOpened}
-        >
-          添加图片
-        </Menu.Item>
-        <Menu.Item
-          key="file-remove-image"
-          onClick={this.handleRemoveImageFromFile}
-          disabled={!isFileOpened || !activeImageId}
-        >
-          删除图片
-        </Menu.Item>
-        <Menu.Divider />
-        <Menu.Item
-          key="file-export-png"
-          onClick={this.handleExportImageFromFile}
-          disabled={!isFileOpened || !activeImageId}
-        >
-          导出PNG
-        </Menu.Item>
-      </Menu>
-    );
+    const fileMenuItems: MenuProps['items'] = [
+      { key: 'file-new', label: '新建', onClick: this.handleNewMarkerFile },
+      { key: 'file-open', label: '打开', onClick: this.handleOpenMarkerFile },
+      {
+        key: 'file-save',
+        label: '保存 (Ctrl+S)',
+        onClick: this.handleSaveMarkerFile,
+        disabled: !isFileOpened || !isModified,
+      },
+      {
+        key: 'file-save-as',
+        label: '另存为 (Ctrl+Shift+S)',
+        onClick: this.handleSaveMarkerFileAs,
+        disabled: !isFileOpened,
+      },
+      { type: 'divider' },
+      {
+        key: 'file-add-image',
+        label: '添加图片',
+        onClick: this.handleAddImageToFile,
+        disabled: !isFileOpened,
+      },
+      {
+        key: 'file-remove-image',
+        label: '删除图片',
+        onClick: this.handleRemoveImageFromFile,
+        disabled: !isFileOpened || !activeImageId,
+      },
+      { type: 'divider' },
+      {
+        key: 'file-export-png',
+        label: '导出PNG',
+        onClick: this.handleExportImageFromFile,
+        disabled: !isFileOpened || !activeImageId,
+      },
+    ];
 
-    const editMenu = (
-      <Menu>
-        <Menu.Item key="edit-undo" onClick={this.handleUndo} disabled={!activeImageId || !canUndo}>
-          撤销 (Ctrl+Z)
-        </Menu.Item>
-        <Menu.Item key="edit-redo" onClick={this.handleRedo} disabled={!activeImageId || !canRedo}>
-          重做 (Ctrl+Y)
-        </Menu.Item>
-        <Menu.Divider />
-        <Menu.Item
-          key="edit-clear-all"
-          onClick={this.handleClearAllAnnotations}
-          disabled={!activeImageId || !hasAnnotations}
-        >
-          清除所有标注
-        </Menu.Item>
-        <Menu.Item
-          key="edit-delete-selected"
-          onClick={this.handleDeleteSelectedAnnotations}
-          disabled={!activeImageId || !hasSelectedAnnotations}
-        >
-          删除选中标注 (Delete)
-        </Menu.Item>
-      </Menu>
-    );
+    const editMenuItems: MenuProps['items'] = [
+      {
+        key: 'edit-undo',
+        label: '撤销 (Ctrl+Z)',
+        onClick: this.handleUndo,
+        disabled: !activeImageId || !canUndo,
+      },
+      {
+        key: 'edit-redo',
+        label: '重做 (Ctrl+Y)',
+        onClick: this.handleRedo,
+        disabled: !activeImageId || !canRedo,
+      },
+      { type: 'divider' },
+      {
+        key: 'edit-clear-all',
+        label: '清除所有标注',
+        onClick: this.handleClearAllAnnotations,
+        disabled: !activeImageId || !hasAnnotations,
+      },
+      {
+        key: 'edit-delete-selected',
+        label: '删除选中标注 (Delete)',
+        onClick: this.handleDeleteSelectedAnnotations,
+        disabled: !activeImageId || !hasSelectedAnnotations,
+      },
+    ];
 
-    const annotationMenu = (
-      <Menu>
-        <Menu.Item
-          key="tool-horizontal-line"
-          onClick={() => this.handleSetActiveTool('horizontal-line')}
-          disabled={!isFileOpened || !activeImageId}
-        >
-          水平线段
-        </Menu.Item>
-        <Menu.Item
-          key="tool-vertical-line"
-          onClick={() => this.handleSetActiveTool('vertical-line')}
-          disabled={!isFileOpened || !activeImageId}
-        >
-          垂直线段
-        </Menu.Item>
-        <Menu.Divider />
-        <Menu.Item
-          key="tool-normal-protractor"
-          onClick={() => this.handleSetActiveTool('normal-protractor')}
-          disabled={!isFileOpened || !activeImageId}
-        >
-          普通量角器
-        </Menu.Item>
-        <Menu.Item
-          key="tool-horizontal-protractor"
-          onClick={() => this.handleSetActiveTool('horizontal-protractor')}
-          disabled={!isFileOpened || !activeImageId}
-        >
-          水平量角器
-        </Menu.Item>
-        <Menu.Item
-          key="tool-vertical-protractor"
-          onClick={() => this.handleSetActiveTool('vertical-protractor')}
-          disabled={!isFileOpened || !activeImageId}
-        >
-          垂直量角器
-        </Menu.Item>
-      </Menu>
-    );
+    const annotationMenuItems: MenuProps['items'] = [
+      {
+        key: 'tool-horizontal-line',
+        label: '水平线段',
+        onClick: () => this.handleSetActiveTool('horizontal-line'),
+        disabled: !isFileOpened || !activeImageId,
+      },
+      {
+        key: 'tool-vertical-line',
+        label: '垂直线段',
+        onClick: () => this.handleSetActiveTool('vertical-line'),
+        disabled: !isFileOpened || !activeImageId,
+      },
+      { type: 'divider' },
+      {
+        key: 'tool-normal-protractor',
+        label: '普通量角器',
+        onClick: () => this.handleSetActiveTool('normal-protractor'),
+        disabled: !isFileOpened || !activeImageId,
+      },
+      {
+        key: 'tool-horizontal-protractor',
+        label: '水平量角器',
+        onClick: () => this.handleSetActiveTool('horizontal-protractor'),
+        disabled: !isFileOpened || !activeImageId,
+      },
+      {
+        key: 'tool-vertical-protractor',
+        label: '垂直量角器',
+        onClick: () => this.handleSetActiveTool('vertical-protractor'),
+        disabled: !isFileOpened || !activeImageId,
+      },
+    ];
 
-    const imageMenu = (
-      <Menu>
-        <Menu.Item
-          key="image-zoom-in"
-          onClick={this.handleZoomIn}
-          disabled={!activeImageId || (zoom && zoom >= 800)}
-        >
-          放大 (Ctrl++)
-        </Menu.Item>
-        <Menu.Item
-          key="image-zoom-out"
-          onClick={this.handleZoomOut}
-          disabled={!activeImageId || (zoom && zoom <= 10)}
-        >
-          缩小 (Ctrl+-)
-        </Menu.Item>
-        <Menu.Divider />
-        <Menu.Item key="image-fit-window" onClick={this.handleFitWindow} disabled={!activeImageId}>
-          适应窗口 (Ctrl+0)
-        </Menu.Item>
-        <Menu.Item
-          key="image-actual-size"
-          onClick={this.handleActualSize}
-          disabled={!activeImageId}
-        >
-          实际大小 (Ctrl+1)
-        </Menu.Item>
-        <Menu.Divider />
-        <Menu.Item
-          key="image-rotate"
-          onClick={this.handleRotateClockwise}
-          disabled={!activeImageId}
-        >
-          顺时针旋转 (Ctrl+R)
-        </Menu.Item>
-        <Menu.Item
-          key="image-rotate-counter"
-          onClick={this.handleRotateCounterClockwise}
-          disabled={!activeImageId}
-        >
-          逆时针旋转 (Ctrl+Shift+R)
-        </Menu.Item>
-        <Menu.Item
-          key="image-reset-rotation"
-          onClick={this.handleResetRotation}
-          disabled={!activeImageId}
-        >
-          重置旋转 (Ctrl+Shift+0)
-        </Menu.Item>
-      </Menu>
-    );
+    const imageMenuItems: MenuProps['items'] = [
+      {
+        key: 'image-zoom-in',
+        label: '放大 (Ctrl++)',
+        onClick: this.handleZoomIn,
+        disabled: !activeImageId || (zoom && zoom >= 800),
+      },
+      {
+        key: 'image-zoom-out',
+        label: '缩小 (Ctrl+-)',
+        onClick: this.handleZoomOut,
+        disabled: !activeImageId || (zoom && zoom <= 10),
+      },
+      { type: 'divider' },
+      {
+        key: 'image-fit-window',
+        label: '适应窗口 (Ctrl+0)',
+        onClick: this.handleFitWindow,
+        disabled: !activeImageId,
+      },
+      {
+        key: 'image-actual-size',
+        label: '实际大小 (Ctrl+1)',
+        onClick: this.handleActualSize,
+        disabled: !activeImageId,
+      },
+      { type: 'divider' },
+      {
+        key: 'image-rotate',
+        label: '顺时针旋转 (Ctrl+R)',
+        onClick: this.handleRotateClockwise,
+        disabled: !activeImageId,
+      },
+      {
+        key: 'image-rotate-counter',
+        label: '逆时针旋转 (Ctrl+Shift+R)',
+        onClick: this.handleRotateCounterClockwise,
+        disabled: !activeImageId,
+      },
+      {
+        key: 'image-reset-rotation',
+        label: '重置旋转 (Ctrl+Shift+0)',
+        onClick: this.handleResetRotation,
+        disabled: !activeImageId,
+      },
+    ];
 
-    const helpMenu = (
-      <Menu>
-        <Menu.Item key="help-dev-tools" onClick={this.handleOpenDevTools}>
-          开发者工具
-        </Menu.Item>
-      </Menu>
-    );
+    const helpMenuItems: MenuProps['items'] = [
+      { key: 'help-dev-tools', label: '开发者工具', onClick: this.handleOpenDevTools },
+    ];
 
     return (
       <div className={styles.menuBar}>
-        <Dropdown overlay={fileMenu} trigger={['click']}>
+        <Dropdown menu={{ items: fileMenuItems }}>
           <Button className={styles.menuButton}>文件</Button>
         </Dropdown>
-        <Dropdown overlay={editMenu} trigger={['click']}>
+        <Dropdown menu={{ items: editMenuItems }}>
           <Button className={styles.menuButton}>编辑</Button>
         </Dropdown>
-        <Dropdown overlay={annotationMenu} trigger={['click']}>
+        <Dropdown menu={{ items: annotationMenuItems }}>
           <Button className={styles.menuButton}>标注</Button>
         </Dropdown>
-        <Dropdown overlay={imageMenu} trigger={['click']}>
+        <Dropdown menu={{ items: imageMenuItems }}>
           <Button className={styles.menuButton}>图片</Button>
         </Dropdown>
-        <Dropdown overlay={helpMenu} trigger={['click']}>
+        <Dropdown menu={{ items: helpMenuItems }}>
           <Button className={styles.menuButton}>帮助</Button>
         </Dropdown>
       </div>

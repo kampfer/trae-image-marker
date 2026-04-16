@@ -12,19 +12,14 @@
   background: transparent;
   border-color: transparent;
   color: #cccccc;
-  padding: 0 10px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  cursor: pointer;
+  line-height: 1;
   border-radius: 0;
 }
 
 .menuButton:hover {
-  background-color: #2a2d2e;
-  color: #ffffff;
+  background-color: #2a2d2e !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
 }
 
 .menuButton:focus {
@@ -32,6 +27,7 @@
 }
 
 .menuButton:active {
-  background-color: #0e639c;
-  color: #ffffff;
+  background-color: #0e639c !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
 }
