@@ -3,7 +3,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { RootState, AppDispatch } from '../../store';
-import { setActiveTool, ToolType } from '../../store/slices/toolSlice';
 import {
   zoomIn,
   zoomOut,
@@ -12,6 +11,12 @@ import {
   addRotation,
   toggleAuxiliaryLines,
 } from '../../store/slices/canvasSlice';
+import {
+  setActiveTool,
+  ToolType,
+  executeCommand,
+  finishCommand,
+} from '../../store/slices/commandSlice';
 
 import styles from './Toolbar.module.css';
 
@@ -36,32 +41,44 @@ class Toolbar extends React.Component<ToolbarProps, ToolbarState> {
   handleToolClick = async (toolType: ToolType, key: string) => {
     this.setState({ activeKey: key });
     this.props.dispatch(setActiveTool(toolType));
-    await new Promise<void>(resolve => setTimeout(resolve, 100));
+    await new Promise<void>((resolve) => setTimeout(resolve, 100));
     this.setState({ activeKey: null });
   };
 
   handleZoomIn = () => {
+    this.props.dispatch(executeCommand('image-zoom-in'));
     this.props.dispatch(zoomIn(this.props.imageId));
+    this.props.dispatch(finishCommand());
   };
 
   handleZoomOut = () => {
+    this.props.dispatch(executeCommand('image-zoom-out'));
     this.props.dispatch(zoomOut(this.props.imageId));
+    this.props.dispatch(finishCommand());
   };
 
   handleFitWindow = () => {
+    this.props.dispatch(executeCommand('image-fit-window'));
     this.props.dispatch(fitWindow(this.props.imageId));
+    this.props.dispatch(finishCommand());
   };
 
   handleActualSize = () => {
+    this.props.dispatch(executeCommand('image-actual-size'));
     this.props.dispatch(actualSize(this.props.imageId));
+    this.props.dispatch(finishCommand());
   };
 
   handleRotateClockwise = () => {
+    this.props.dispatch(executeCommand('image-rotate'));
     this.props.dispatch(addRotation({ imageId: this.props.imageId, delta: 90 }));
+    this.props.dispatch(finishCommand());
   };
 
   handleResetRotation = () => {
+    this.props.dispatch(executeCommand('image-reset-rotation'));
     this.props.dispatch(addRotation({ imageId: this.props.imageId, delta: 0 }));
+    this.props.dispatch(finishCommand());
   };
 
   handleToggleAuxiliaryLines = () => {
@@ -100,14 +117,18 @@ class Toolbar extends React.Component<ToolbarProps, ToolbarState> {
             <FloatButton
               icon={<span className={styles.icon}>⊝</span>}
               type={activeKey === 'tool-horizontal-protractor' ? 'primary' : 'default'}
-              onClick={() => this.handleToolClick('horizontal-protractor', 'tool-horizontal-protractor')}
+              onClick={() =>
+                this.handleToolClick('horizontal-protractor', 'tool-horizontal-protractor')
+              }
             />
           </Tooltip>
           <Tooltip title="垂直量角器" position="left">
             <FloatButton
               icon={<span className={styles.icon}>⊞</span>}
               type={activeKey === 'tool-vertical-protractor' ? 'primary' : 'default'}
-              onClick={() => this.handleToolClick('vertical-protractor', 'tool-vertical-protractor')}
+              onClick={() =>
+                this.handleToolClick('vertical-protractor', 'tool-vertical-protractor')
+              }
             />
           </Tooltip>
         </FloatButton.Group>

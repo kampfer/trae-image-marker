@@ -1,5 +1,5 @@
-import { ImageInfo } from '../slices/imageSlice';
 import { AnnotationType } from '../slices/annotationSlice';
+import { ImageInfo } from '../slices/imageSlice';
 
 export interface MarkerFile {
   version: string;

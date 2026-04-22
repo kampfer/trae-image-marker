@@ -4,16 +4,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { RootState, AppDispatch } from '../../store';
-import {
-  selectActiveImageId,
-  selectIsFileOpened,
-  selectIsModified,
-  selectCanUndo,
-  selectCanRedo,
-  selectHasAnnotations,
-  selectHasSelectedAnnotations,
-  selectActiveImageZoom,
-} from '../../store/selectors';
 import { clearAllAnnotations, deleteSelectedAnnotations } from '../../store/slices/annotationSlice';
 import {
   zoomIn,
@@ -22,9 +12,9 @@ import {
   actualSize,
   addRotation,
 } from '../../store/slices/canvasSlice';
-import { newMarkerFile } from '../../store/slices/fileSlice';
+import { CommandId } from '../../store/slices/commandSlice';
+import { createNewFile } from '../../store/slices/fileSlice';
 import { undo, redo } from '../../store/slices/historySlice';
-import { setActiveTool, ToolType } from '../../store/slices/toolSlice';
 
 import styles from './MenuBar.module.css';
 
@@ -42,7 +32,7 @@ interface MenuBarProps {
 
 class MenuBar extends React.Component<MenuBarProps> {
   handleNewMarkerFile = () => {
-    this.props.dispatch(newMarkerFile());
+    this.props.dispatch(createNewFile());
   };
 
   handleOpenMarkerFile = () => {
@@ -97,8 +87,8 @@ class MenuBar extends React.Component<MenuBarProps> {
     }
   };
 
-  handleSetActiveTool = (toolType: ToolType) => {
-    this.props.dispatch(setActiveTool(toolType));
+  handleSetActiveTool = (toolId: CommandId) => {
+    console.log('设置工具', toolId);
   };
 
   handleZoomIn = () => {
@@ -228,32 +218,32 @@ class MenuBar extends React.Component<MenuBarProps> {
       {
         key: 'tool-horizontal-line',
         label: '水平线段',
-        onClick: () => this.handleSetActiveTool('horizontal-line'),
+        onClick: () => this.handleSetActiveTool('tool-horizontal-line'),
         disabled: !isFileOpened || !activeImageId,
       },
       {
         key: 'tool-vertical-line',
         label: '垂直线段',
-        onClick: () => this.handleSetActiveTool('vertical-line'),
+        onClick: () => this.handleSetActiveTool('tool-vertical-line'),
         disabled: !isFileOpened || !activeImageId,
       },
       { type: 'divider' },
       {
         key: 'tool-normal-protractor',
         label: '普通量角器',
-        onClick: () => this.handleSetActiveTool('normal-protractor'),
+        onClick: () => this.handleSetActiveTool('tool-normal-protractor'),
         disabled: !isFileOpened || !activeImageId,
       },
       {
         key: 'tool-horizontal-protractor',
         label: '水平量角器',
-        onClick: () => this.handleSetActiveTool('horizontal-protractor'),
+        onClick: () => this.handleSetActiveTool('tool-horizontal-protractor'),
         disabled: !isFileOpened || !activeImageId,
       },
       {
         key: 'tool-vertical-protractor',
         label: '垂直量角器',
-        onClick: () => this.handleSetActiveTool('vertical-protractor'),
+        onClick: () => this.handleSetActiveTool('tool-vertical-protractor'),
         disabled: !isFileOpened || !activeImageId,
       },
     ];
@@ -335,8 +325,8 @@ const mapStateToProps = (state: RootState) => {
   const activeImageId = state.image.activeImageId;
   return {
     activeImageId,
-    isFileOpened: state.file.isFileOpened,
-    isModified: state.file.isModified,
+    isFileOpened: state.file.filePath !== null,
+    isModified: state.file.hasUnsavedChanges,
     canUndo: activeImageId ? state.history.pastByImage[activeImageId]?.length > 0 : false,
     canRedo: activeImageId ? state.history.futureByImage[activeImageId]?.length > 0 : false,
     hasAnnotations: activeImageId

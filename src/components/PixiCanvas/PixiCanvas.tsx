@@ -219,7 +219,7 @@ const mapStateToProps = (state: RootState, ownProps: { imageId: string }) => {
     activeImageId,
     activeImage: activeImageId === ownProps.imageId ? activeImage : undefined,
     annotations: state.annotation.annotationsByImage[ownProps.imageId] || [],
-    activeTool: state.tool.activeTool,
+    activeTool: state.command.activeTool,
     zoom: state.canvas.zoomByImage[ownProps.imageId] || 100,
     rotation: state.canvas.rotationByImage[ownProps.imageId] || 0,
     showAuxiliaryLines: state.canvas.showAuxiliaryLinesByImage[ownProps.imageId] || false,

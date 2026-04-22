@@ -1,19 +1,20 @@
 import { configureStore } from '@reduxjs/toolkit';
-import toolReducer from './slices/toolSlice';
-import imageReducer from './slices/imageSlice';
+
 import annotationReducer from './slices/annotationSlice';
-import historyReducer from './slices/historySlice';
 import canvasReducer from './slices/canvasSlice';
+import commandReducer from './slices/commandSlice';
 import fileReducer from './slices/fileSlice';
+import historyReducer from './slices/historySlice';
+import imageReducer from './slices/imageSlice';
 
 const store = configureStore({
   reducer: {
-    tool: toolReducer,
-    image: imageReducer,
     annotation: annotationReducer,
-    history: historyReducer,
     canvas: canvasReducer,
+    command: commandReducer,
     file: fileReducer,
+    history: historyReducer,
+    image: imageReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

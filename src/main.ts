@@ -3,10 +3,15 @@ import path from 'node:path';
 
 import started from 'electron-squirrel-startup';
 
+import { registerIpcHandlers } from './main/ipc';
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
+
+// 注册 IPC 处理器
+registerIpcHandlers();
 
 const createWindow = () => {
   const isDev = !!MAIN_WINDOW_VITE_DEV_SERVER_URL;
