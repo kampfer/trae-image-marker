@@ -6,6 +6,23 @@ import { serializeMarkerFile } from '../serializers/markerFileSerializer';
 import type { AnnotationType } from './annotationSlice';
 import type { ImageInfo } from './imageSlice';
 
+const updateWindowTitle = (
+  filePath: string | null,
+  fileName: string,
+  hasUnsavedChanges: boolean
+) => {
+  let title = 'trae-image-marker';
+
+  if (filePath) {
+    const displayName = fileName || filePath.split(/[\/]/).pop() || 'Untitled';
+    title = `${displayName}${hasUnsavedChanges ? ' *' : ''} - trae-image-marker`;
+  }
+
+  if (window.electronAPI && window.electronAPI.updateWindowTitle) {
+    window.electronAPI.updateWindowTitle(title);
+  }
+};
+
 interface FileState {
   filePath: string | null;
   fileName: string;
@@ -18,33 +35,6 @@ const initialState: FileState = {
   hasUnsavedChanges: false,
 };
 
-/**
- * 文件操作相关 API 接口
- * 定义与 Electron 主进程通信的文件操作方法
- */
-declare global {
-  interface Window {
-    electronAPI: {
-      showSaveDialog: (options: {
-        title?: string;
-        defaultPath?: string;
-        filters?: Array<{ name: string; extensions: string[] }>;
-      }) => Promise<{ filePath: string | null; fileName: string | null } | null>;
-      showOpenDialog: (options: {
-        title?: string;
-        filters?: Array<{ name: string; extensions: string[] }>;
-        properties?: Array<'openFile' | 'multiSelections'>;
-      }) => Promise<{ filePaths: string[] } | null>;
-      readFile: (filePath: string) => Promise<string>;
-      writeFile: (filePath: string, content: string) => Promise<void>;
-    };
-  }
-}
-
-/**
- * 新建标记文件
- * 弹出保存对话框，让用户选择新文件的位置和名称
- */
 export const createNewFile = createAsyncThunk<
   { filePath: string; fileName: string },
   void,
@@ -69,10 +59,6 @@ export const createNewFile = createAsyncThunk<
   return { filePath, fileName };
 });
 
-/**
- * 打开标记文件
- * 弹出打开对话框，让用户选择要打开的文件
- */
 export const openFile = createAsyncThunk<
   { filePath: string; fileName: string; content: string },
   void,
@@ -95,10 +81,6 @@ export const openFile = createAsyncThunk<
   return { filePath, fileName, content };
 });
 
-/**
- * 保存当前文件
- * 如果没有文件路径，则执行另存为操作
- */
 export const saveFile = createAsyncThunk<
   { filePath: string; fileName: string } | null,
   void,
@@ -123,10 +105,6 @@ export const saveFile = createAsyncThunk<
   return { filePath, fileName };
 });
 
-/**
- * 另存为新文件
- * 弹出保存对话框，让用户选择新的文件位置和名称
- */
 export const saveFileAs = createAsyncThunk<
   { filePath: string; fileName: string },
   void,
@@ -187,19 +165,23 @@ const fileSlice = createSlice({
         state.filePath = action.payload.filePath;
         state.fileName = action.payload.fileName;
         state.hasUnsavedChanges = false;
+        updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
       })
       .addCase(openFile.fulfilled, (state, action) => {
         state.filePath = action.payload.filePath;
         state.fileName = action.payload.fileName;
         state.hasUnsavedChanges = false;
+        updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
       })
-      .addCase(saveFile.fulfilled, (state) => {
+      .addCase(saveFile.fulfilled, (state, action) => {
         state.hasUnsavedChanges = false;
+        updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
       })
       .addCase(saveFileAs.fulfilled, (state, action) => {
         state.filePath = action.payload.filePath;
         state.fileName = action.payload.fileName;
         state.hasUnsavedChanges = false;
+        updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
       });
   },
 });
@@ -208,7 +190,6 @@ export const { setFileOpened, setFileClosed, markFileSaved, markFileUnsaved } = 
 
 export default fileSlice.reducer;
 
-// Selectors
 export const selectFilePath = (state: RootState) => state.file.filePath;
 export const selectFileName = (state: RootState) => state.file.fileName;
 export const selectIsFileOpened = (state: RootState) => state.file.filePath !== null;

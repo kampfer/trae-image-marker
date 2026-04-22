@@ -13,7 +13,7 @@ import {
   addRotation,
 } from '../../store/slices/canvasSlice';
 import { CommandId } from '../../store/slices/commandSlice';
-import { createNewFile } from '../../store/slices/fileSlice';
+import { createNewFile, openFile, saveFile, saveFileAs } from '../../store/slices/fileSlice';
 import { undo, redo } from '../../store/slices/historySlice';
 
 import styles from './MenuBar.module.css';
@@ -36,15 +36,15 @@ class MenuBar extends React.Component<MenuBarProps> {
   };
 
   handleOpenMarkerFile = () => {
-    console.log('打开文件');
+    this.props.dispatch(openFile());
   };
 
   handleSaveMarkerFile = () => {
-    console.log('保存文件');
+    this.props.dispatch(saveFile());
   };
 
   handleSaveMarkerFileAs = () => {
-    console.log('另存为文件');
+    this.props.dispatch(saveFileAs());
   };
 
   handleAddImageToFile = () => {

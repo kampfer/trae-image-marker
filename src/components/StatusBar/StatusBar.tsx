@@ -6,32 +6,33 @@ import { RootState } from '../../store';
 import styles from './StatusBar.module.css';
 
 interface StatusBarProps {
-  currentFile: string | null;
   activeImageId: string | null;
-  activeImage: {
-    id: string;
-    name: string;
-    path: string;
-    width: number;
-    height: number;
-    createdAt: string;
-  } | undefined;
+  activeImage:
+    | {
+        id: string;
+        name: string;
+        path: string;
+        width: number;
+        height: number;
+        createdAt: string;
+      }
+    | undefined;
   zoom: number | null;
   rotation: number | null;
 }
 
 class StatusBar extends React.Component<StatusBarProps> {
   render() {
-    const { currentFile, activeImage, zoom, rotation } = this.props;
+    const { activeImage, zoom, rotation } = this.props;
 
-    const fileName = currentFile ? currentFile.split('\\').pop() : '未打开文件';
+    const imageName = activeImage ? activeImage.name : '无图片';
     const imageSize = activeImage ? `${activeImage.width} x ${activeImage.height}` : '无图片';
 
     return (
       <div className={styles.statusBar}>
         <div className={styles.statusItem}>
-          <span className={styles.label}>文件: </span>
-          <span className={styles.value}>{fileName}</span>
+          <span className={styles.label}>图片: </span>
+          <span className={styles.value}>{imageName}</span>
         </div>
         <div className={styles.statusItem}>
           <span className={styles.label}>缩放: </span>
@@ -53,11 +54,10 @@ class StatusBar extends React.Component<StatusBarProps> {
 const mapStateToProps = (state: RootState) => {
   const activeImageId = state.image.activeImageId;
   const activeImage = activeImageId
-    ? state.image.images.find(image => image.id === activeImageId)
+    ? state.image.images.find((image) => image.id === activeImageId)
     : undefined;
 
   return {
-    currentFile: state.file.currentFile,
     activeImageId,
     activeImage,
     zoom: activeImageId ? state.canvas.zoomByImage[activeImageId] || 100 : null,

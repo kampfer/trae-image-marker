@@ -14,6 +14,7 @@ const IpcChannels = {
   FILE_SHOW_OPEN_DIALOG: 'file:show-open-dialog',
   FILE_READ: 'file:read',
   FILE_WRITE: 'file:write',
+  WINDOW_UPDATE_TITLE: 'window:update-title',
 } as const;
 
 /**
@@ -42,6 +43,7 @@ interface ElectronAPI {
   showOpenDialog: (options: ShowOpenDialogOptions) => Promise<{ filePaths: string[] }>;
   readFile: (filePath: string) => Promise<string>;
   writeFile: (filePath: string, content: string) => Promise<void>;
+  updateWindowTitle: (title: string) => Promise<void>;
 }
 
 /**
@@ -56,6 +58,8 @@ const createElectronAPI = (): ElectronAPI => {
     readFile: (filePath: string) => ipcRenderer.invoke(IpcChannels.FILE_READ, filePath),
     writeFile: (filePath: string, content: string) =>
       ipcRenderer.invoke(IpcChannels.FILE_WRITE, filePath, content),
+    updateWindowTitle: (title: string) =>
+      ipcRenderer.invoke(IpcChannels.WINDOW_UPDATE_TITLE, title),
   };
 };
 
