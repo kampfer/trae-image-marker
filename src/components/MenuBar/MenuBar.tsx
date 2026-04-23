@@ -1,4 +1,4 @@
-import { Dropdown, Button } from 'antd';
+import { Dropdown, Button, Modal } from 'antd';
 import type { MenuProps } from 'antd';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -13,10 +13,18 @@ import {
   addRotation,
 } from '../../store/slices/canvasSlice';
 import { CommandId } from '../../store/slices/commandSlice';
-import { createNewFile, openFile, saveFile, saveFileAs } from '../../store/slices/fileSlice';
+import {
+  createNewFile,
+  openFile,
+  saveFile,
+  saveFileAs,
+  selectIsFileOpened,
+} from '../../store/slices/fileSlice';
 import { undo, redo } from '../../store/slices/historySlice';
 
 import styles from './MenuBar.module.css';
+
+const { confirm } = Modal;
 
 interface MenuBarProps {
   activeImageId: string | null;
@@ -32,7 +40,24 @@ interface MenuBarProps {
 
 class MenuBar extends React.Component<MenuBarProps> {
   handleNewMarkerFile = () => {
-    this.props.dispatch(createNewFile());
+    const { isFileOpened, isModified, dispatch } = this.props;
+
+    if (isFileOpened && isModified) {
+      confirm({
+        title: '未保存的更改',
+        content: '当前文件有未保存的更改，新建文件将丢失这些更改。是否继续？',
+        okText: '继续',
+        cancelText: '取消',
+        onOk: () => {
+          dispatch(createNewFile());
+        },
+        onCancel: () => {
+          // 取消操作
+        },
+      });
+    } else {
+      dispatch(createNewFile());
+    }
   };
 
   handleOpenMarkerFile = () => {
@@ -325,7 +350,7 @@ const mapStateToProps = (state: RootState) => {
   const activeImageId = state.image.activeImageId;
   return {
     activeImageId,
-    isFileOpened: state.file.filePath !== null,
+    isFileOpened: selectIsFileOpened(state),
     isModified: state.file.hasUnsavedChanges,
     canUndo: activeImageId ? state.history.pastByImage[activeImageId]?.length > 0 : false,
     canRedo: activeImageId ? state.history.futureByImage[activeImageId]?.length > 0 : false,

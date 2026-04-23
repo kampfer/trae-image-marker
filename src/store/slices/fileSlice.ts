@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 
-import type { RootState } from '../index';
+import type { RootState, AppDispatch } from '../index';
 import { serializeMarkerFile } from '../serializers/markerFileSerializer';
 
 import type { AnnotationType } from './annotationSlice';
@@ -13,8 +13,8 @@ const updateWindowTitle = (
 ) => {
   let title = 'trae-image-marker';
 
-  if (filePath) {
-    const displayName = fileName || filePath.split(/[\/]/).pop() || 'Untitled';
+  if (filePath || fileName) {
+    const displayName = fileName || filePath.split(/[/]/).pop() || 'Untitled';
     title = `${displayName}${hasUnsavedChanges ? ' *' : ''} - trae-image-marker`;
   }
 
@@ -35,28 +35,12 @@ const initialState: FileState = {
   hasUnsavedChanges: false,
 };
 
-export const createNewFile = createAsyncThunk<
-  { filePath: string; fileName: string },
-  void,
-  { state: RootState }
->('file/createNewFile', async (_, { rejectWithValue }) => {
-  const result = await window.electronAPI.showSaveDialog({
-    title: '新建标记文件',
-    defaultPath: 'untitled.json',
-    filters: [{ name: '标记文件', extensions: ['json'] }],
-  });
-
-  if (!result || !result.filePath) {
-    return rejectWithValue('新建文件已取消');
-  }
-
-  const { filePath } = result;
-  const fileName = filePath.split(/[\\/]/).pop() || 'untitled.json';
-
-  const emptyContent = serializeMarkerFile([], {});
-  await window.electronAPI.writeFile(filePath, emptyContent);
-
-  return { filePath, fileName };
+export const createNewFile = () => ({
+  type: 'file/createNewFile' as const,
+  payload: {
+    filePath: null as null,
+    fileName: 'untitled.json',
+  },
 });
 
 export const openFile = createAsyncThunk<
@@ -84,15 +68,22 @@ export const openFile = createAsyncThunk<
 export const saveFile = createAsyncThunk<
   { filePath: string; fileName: string } | null,
   void,
-  { state: RootState }
->('file/saveFile', async (_, { getState, rejectWithValue }) => {
+  { state: RootState; dispatch: AppDispatch }
+>('file/saveFile', async (_, { getState, rejectWithValue, dispatch }) => {
   const state = getState();
   const { filePath, fileName } = state.file;
 
   if (!filePath) {
-    return rejectWithValue('没有打开的文件');
+    // 没有保存路径时，调用 saveFileAs
+    try {
+      const result = await dispatch(saveFileAs()).unwrap();
+      return result;
+    } catch (error) {
+      return rejectWithValue('保存文件已取消');
+    }
   }
 
+  // 有保存路径时，直接保存
   const images: ImageInfo[] = Object.values(state.image.images);
   const annotationsByImage = state.annotation.annotationsByImage as Record<
     string,
@@ -161,7 +152,7 @@ const fileSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createNewFile.fulfilled, (state, action) => {
+      .addCase('file/createNewFile', (state, action: any) => {
         state.filePath = action.payload.filePath;
         state.fileName = action.payload.fileName;
         state.hasUnsavedChanges = false;
@@ -174,6 +165,10 @@ const fileSlice = createSlice({
         updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
       })
       .addCase(saveFile.fulfilled, (state, action) => {
+        if (action.payload) {
+          state.filePath = action.payload.filePath;
+          state.fileName = action.payload.fileName;
+        }
         state.hasUnsavedChanges = false;
         updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
       })
@@ -192,8 +187,9 @@ export default fileSlice.reducer;
 
 export const selectFilePath = (state: RootState) => state.file.filePath;
 export const selectFileName = (state: RootState) => state.file.fileName;
-export const selectIsFileOpened = (state: RootState) => state.file.filePath !== null;
+export const selectIsFileOpened = (state: RootState) =>
+  selectFileName(state) !== '' || selectFilePath(state) !== null;
 export const selectHasUnsavedChanges = (state: RootState) => state.file.hasUnsavedChanges;
 export const selectCanSave = (state: RootState) =>
-  state.file.filePath !== null && state.file.hasUnsavedChanges;
-export const selectCanPerformFileOperation = (state: RootState) => state.file.filePath !== null;
+  selectIsFileOpened(state) && state.file.hasUnsavedChanges;
+export const selectCanPerformFileOperation = (state: RootState) => selectIsFileOpened(state);
