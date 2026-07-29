@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import started from 'electron-squirrel-startup';
 
-import { registerIpcHandlers } from './main/ipc';
+import { registerIpcHandlers } from './ipc';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {

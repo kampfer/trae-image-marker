@@ -12,7 +12,7 @@ import type {
   ShowSaveDialogResult,
   ShowOpenDialogOptions,
   ShowOpenDialogResult,
-} from '../types/fileTypes';
+} from '../../types/fileTypes';
 
 /**
  * 获取当前活动窗口
@@ -93,10 +93,7 @@ export const readFile = async (filePath: string): Promise<string> => {
 /**
  * 写入文件内容
  */
-export const writeFile = async (
-  filePath: string,
-  content: string
-): Promise<void> => {
+export const writeFile = async (filePath: string, content: string): Promise<void> => {
   if (!filePath) {
     throw new Error('文件路径不能为空');
   }

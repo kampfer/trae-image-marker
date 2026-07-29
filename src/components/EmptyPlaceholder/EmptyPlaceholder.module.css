@@ -1,0 +1,37 @@
+.emptyPlaceholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  background-color: #1e1e1e;
+}
+
+.icon {
+  margin-bottom: 24px;
+  opacity: 0.8;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 12px 0;
+}
+
+.description {
+  font-size: 14px;
+  color: #969696;
+  margin: 0 0 32px 0;
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+}
+
+.actionButton {
+  min-width: 140px;
+}
