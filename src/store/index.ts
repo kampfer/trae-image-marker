@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 
+import reduxLoggerMiddleware from './middleware/reduxLoggerMiddleware';
 import annotationReducer from './slices/annotationSlice';
 import canvasReducer from './slices/canvasSlice';
 import commandReducer from './slices/commandSlice';
@@ -19,7 +20,7 @@ const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }),
+    }).concat(reduxLoggerMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

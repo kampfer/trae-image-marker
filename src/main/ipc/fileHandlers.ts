@@ -5,8 +5,8 @@
 
 import { ipcMain, BrowserWindow } from 'electron';
 
-import { showSaveDialog, showOpenDialog, readFile, writeFile } from '../services/fileService';
 import type { ShowSaveDialogOptions, ShowOpenDialogOptions } from '../../types/fileTypes';
+import { showSaveDialog, showOpenDialog, readFile, writeFile } from '../services/fileService';
 
 import { IpcChannels } from './channels';
 
