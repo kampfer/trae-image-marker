@@ -18,6 +18,7 @@ import {
   openFile,
   saveFile,
   saveFileAs,
+  selectCanSave,
   selectIsFileOpened,
 } from '../../store/slices/fileSlice';
 import { undo, redo } from '../../store/slices/historySlice';
@@ -30,6 +31,7 @@ interface MenuBarProps {
   activeImageId: string | null;
   isFileOpened: boolean;
   isModified: boolean;
+  canSave: boolean;
   canUndo: boolean;
   canRedo: boolean;
   hasAnnotations: boolean;
@@ -167,6 +169,7 @@ class MenuBar extends React.Component<MenuBarProps> {
       activeImageId,
       isFileOpened,
       isModified,
+      canSave,
       canUndo,
       canRedo,
       hasAnnotations,
@@ -181,7 +184,7 @@ class MenuBar extends React.Component<MenuBarProps> {
         key: 'file-save',
         label: '保存 (Ctrl+S)',
         onClick: this.handleSaveMarkerFile,
-        disabled: !isFileOpened || !isModified,
+        disabled: !canSave,
       },
       {
         key: 'file-save-as',
@@ -352,6 +355,7 @@ const mapStateToProps = (state: RootState) => {
     activeImageId,
     isFileOpened: selectIsFileOpened(state),
     isModified: state.file.hasUnsavedChanges,
+    canSave: selectCanSave(state),
     canUndo: activeImageId ? state.history.pastByImage[activeImageId]?.length > 0 : false,
     canRedo: activeImageId ? state.history.futureByImage[activeImageId]?.length > 0 : false,
     hasAnnotations: activeImageId

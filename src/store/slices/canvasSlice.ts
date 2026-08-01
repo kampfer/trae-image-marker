@@ -61,6 +61,18 @@ const canvasSlice = createSlice({
       const imageId = action.payload;
       state.showAuxiliaryLinesByImage[imageId] = !state.showAuxiliaryLinesByImage[imageId];
     },
+    resetCanvas: (state) => {
+      state.zoomByImage = {};
+      state.rotationByImage = {};
+      state.showAuxiliaryLinesByImage = {};
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase('file/createNewFile', (state) => {
+      state.zoomByImage = {};
+      state.rotationByImage = {};
+      state.showAuxiliaryLinesByImage = {};
+    });
   },
 });
 
@@ -72,5 +84,6 @@ export const {
   setRotation,
   addRotation,
   toggleAuxiliaryLines,
+  resetCanvas,
 } = canvasSlice.actions;
 export default canvasSlice.reducer;

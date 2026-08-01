@@ -2,7 +2,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Annotation {
   id: string;
-  type: 'horizontal-line' | 'vertical-line' | 'normal-protractor' | 'horizontal-protractor' | 'vertical-protractor';
+  type:
+    | 'horizontal-line'
+    | 'vertical-line'
+    | 'normal-protractor'
+    | 'horizontal-protractor'
+    | 'vertical-protractor';
   createdAt: string;
   updatedAt: string;
   [key: string]: any;
@@ -51,7 +56,10 @@ const annotationSlice = createSlice({
   name: 'annotation',
   initialState,
   reducers: {
-    addAnnotation: (state, action: PayloadAction<{ imageId: string; annotation: AnnotationType }>) => {
+    addAnnotation: (
+      state,
+      action: PayloadAction<{ imageId: string; annotation: AnnotationType }>
+    ) => {
       const { imageId, annotation } = action.payload;
       if (!state.annotationsByImage[imageId]) {
         state.annotationsByImage[imageId] = [];
@@ -81,15 +89,18 @@ const annotationSlice = createSlice({
       if (state.selectedAnnotationsByImage[imageId]) {
         const selectedIds = state.selectedAnnotationsByImage[imageId];
         state.annotationsByImage[imageId] = state.annotationsByImage[imageId].filter(
-          annotation => !selectedIds.includes(annotation.id)
+          (annotation) => !selectedIds.includes(annotation.id)
         );
         state.selectedAnnotationsByImage[imageId] = [];
       }
     },
-    updateAnnotation: (state, action: PayloadAction<{ imageId: string; id: string; updates: Partial<AnnotationType> }>) => {
+    updateAnnotation: (
+      state,
+      action: PayloadAction<{ imageId: string; id: string; updates: Partial<AnnotationType> }>
+    ) => {
       const { imageId, id, updates } = action.payload;
       if (state.annotationsByImage[imageId]) {
-        const annotation = state.annotationsByImage[imageId].find(anno => anno.id === id);
+        const annotation = state.annotationsByImage[imageId].find((anno) => anno.id === id);
         if (annotation) {
           Object.assign(annotation, updates);
           annotation.updatedAt = new Date().toISOString();
@@ -101,8 +112,31 @@ const annotationSlice = createSlice({
       state.annotationsByImage[imageId] = [];
       state.selectedAnnotationsByImage[imageId] = [];
     },
+    setAnnotations: (state, action: PayloadAction<Record<string, AnnotationType[]>>) => {
+      state.annotationsByImage = action.payload;
+      state.selectedAnnotationsByImage = {};
+    },
+    clearAnnotations: (state) => {
+      state.annotationsByImage = {};
+      state.selectedAnnotationsByImage = {};
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase('file/createNewFile', (state) => {
+      state.annotationsByImage = {};
+      state.selectedAnnotationsByImage = {};
+    });
   },
 });
 
-export const { addAnnotation, selectAnnotation, deselectAnnotation, deleteSelectedAnnotations, updateAnnotation, clearAllAnnotations } = annotationSlice.actions;
+export const {
+  addAnnotation,
+  selectAnnotation,
+  deselectAnnotation,
+  deleteSelectedAnnotations,
+  updateAnnotation,
+  clearAllAnnotations,
+  setAnnotations,
+  clearAnnotations,
+} = annotationSlice.actions;
 export default annotationSlice.reducer;

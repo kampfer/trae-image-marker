@@ -1,6 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type ToolType = 'none' | 'horizontal-line' | 'vertical-line' | 'normal-protractor' | 'horizontal-protractor' | 'vertical-protractor';
+export type ToolType =
+  | 'none'
+  | 'horizontal-line'
+  | 'vertical-line'
+  | 'normal-protractor'
+  | 'horizontal-protractor'
+  | 'vertical-protractor';
 
 export type CommandId =
   | 'file-new'
@@ -88,15 +94,29 @@ const commandSlice = createSlice({
     finishCommand: (state) => {
       state.executingCommand = null;
     },
-    setCommandDisabled: (state, action: PayloadAction<{ commandId: CommandId; disabled: boolean }>) => {
+    setCommandDisabled: (
+      state,
+      action: PayloadAction<{ commandId: CommandId; disabled: boolean }>
+    ) => {
       state.commands[action.payload.commandId] = action.payload.disabled;
     },
     setAllCommandsDisabled: (state, action: PayloadAction<boolean>) => {
       const keys = Object.keys(state.commands) as CommandId[];
-      keys.forEach(key => {
+      keys.forEach((key) => {
         state.commands[key] = action.payload;
       });
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase('file/createNewFile', (state) => {
+        state.activeTool = 'none';
+        state.executingCommand = null;
+      })
+      .addCase('file/openFile/fulfilled', (state) => {
+        state.activeTool = 'none';
+        state.executingCommand = null;
+      });
   },
 });
 

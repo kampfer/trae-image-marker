@@ -1,10 +1,11 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAction, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import type { RootState, AppDispatch } from '../index';
-import { serializeMarkerFile } from '../serializers/markerFileSerializer';
-
-import type { AnnotationType } from './annotationSlice';
-import type { ImageInfo } from './imageSlice';
+import { deserializeMarkerFile, serializeMarkerFile } from '../serializers/markerFileSerializer';
+import { setAnnotations, type AnnotationType } from './annotationSlice';
+import { resetCanvas } from './canvasSlice';
+import { clearAllHistory } from './historySlice';
+import { setImages, type ImageInfo } from './imageSlice';
 
 const updateWindowTitle = (
   filePath: string | null,
@@ -14,7 +15,7 @@ const updateWindowTitle = (
   let title = 'trae-image-marker';
 
   if (filePath || fileName) {
-    const displayName = fileName || filePath.split(/[/]/).pop() || 'Untitled';
+    const displayName = fileName || filePath.split(/[\\/]/).pop() || 'Untitled';
     title = `${displayName}${hasUnsavedChanges ? ' *' : ''} - trae-image-marker`;
   }
 
@@ -26,28 +27,37 @@ const updateWindowTitle = (
 interface FileState {
   filePath: string | null;
   fileName: string;
+  isUntitled: boolean;
   hasUnsavedChanges: boolean;
 }
 
 const initialState: FileState = {
   filePath: null,
   fileName: '',
+  isUntitled: false,
   hasUnsavedChanges: false,
 };
 
-export const createNewFile = () => ({
-  type: 'file/createNewFile' as const,
+let untitledFileCounter = 0;
+
+const getNextUntitledFileName = (): string => {
+  untitledFileCounter += 1;
+  return `Untitled-${untitledFileCounter}`;
+};
+
+export const createNewFile = createAction('file/createNewFile', () => ({
   payload: {
-    filePath: null as null,
-    fileName: 'untitled.json',
+    filePath: null,
+    fileName: getNextUntitledFileName(),
+    isUntitled: true,
   },
-});
+}));
 
 export const openFile = createAsyncThunk<
   { filePath: string; fileName: string; content: string },
   void,
-  { state: RootState }
->('file/openFile', async (_, { rejectWithValue }) => {
+  { state: RootState; dispatch: AppDispatch }
+>('file/openFile', async (_, { dispatch, rejectWithValue }) => {
   const result = await window.electronAPI.showOpenDialog({
     title: '打开标记文件',
     filters: [{ name: '标记文件', extensions: ['json'] }],
@@ -61,6 +71,12 @@ export const openFile = createAsyncThunk<
   const filePath = result.filePaths[0];
   const fileName = filePath.split(/[\\/]/).pop() || 'unknown';
   const content = await window.electronAPI.readFile(filePath);
+  const { images, annotationsByImage } = deserializeMarkerFile(content);
+
+  dispatch(setImages(images));
+  dispatch(setAnnotations(annotationsByImage));
+  dispatch(clearAllHistory());
+  dispatch(resetCanvas());
 
   return { filePath, fileName, content };
 });
@@ -102,7 +118,7 @@ export const saveFileAs = createAsyncThunk<
   { state: RootState }
 >('file/saveFileAs', async (_, { getState, rejectWithValue }) => {
   const state = getState();
-  const currentFileName = state.file.fileName || 'untitled.json';
+  const currentFileName = state.file.fileName || 'Untitled';
 
   const result = await window.electronAPI.showSaveDialog({
     title: '另存为',
@@ -115,7 +131,7 @@ export const saveFileAs = createAsyncThunk<
   }
 
   const { filePath } = result;
-  const fileName = filePath.split(/[\\/]/).pop() || 'untitled.json';
+  const fileName = filePath.split(/[\\/]/).pop() || 'Untitled';
 
   const images: ImageInfo[] = Object.values(state.image.images);
   const annotationsByImage = state.annotation.annotationsByImage as Record<
@@ -129,6 +145,11 @@ export const saveFileAs = createAsyncThunk<
   return { filePath, fileName };
 });
 
+const markDocumentUnsaved = (state: FileState) => {
+  state.hasUnsavedChanges = true;
+  updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
+};
+
 const fileSlice = createSlice({
   name: 'file',
   initialState,
@@ -136,31 +157,34 @@ const fileSlice = createSlice({
     setFileOpened: (state, action: PayloadAction<{ filePath: string; fileName: string }>) => {
       state.filePath = action.payload.filePath;
       state.fileName = action.payload.fileName;
+      state.isUntitled = false;
       state.hasUnsavedChanges = false;
     },
     setFileClosed: (state) => {
       state.filePath = null;
       state.fileName = '';
+      state.isUntitled = false;
       state.hasUnsavedChanges = false;
     },
     markFileSaved: (state) => {
       state.hasUnsavedChanges = false;
+      updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
     },
-    markFileUnsaved: (state) => {
-      state.hasUnsavedChanges = true;
-    },
+    markFileUnsaved: markDocumentUnsaved,
   },
   extraReducers: (builder) => {
     builder
-      .addCase('file/createNewFile', (state, action: any) => {
+      .addCase(createNewFile, (state, action) => {
         state.filePath = action.payload.filePath;
         state.fileName = action.payload.fileName;
+        state.isUntitled = action.payload.isUntitled;
         state.hasUnsavedChanges = false;
         updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
       })
       .addCase(openFile.fulfilled, (state, action) => {
         state.filePath = action.payload.filePath;
         state.fileName = action.payload.fileName;
+        state.isUntitled = false;
         state.hasUnsavedChanges = false;
         updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
       })
@@ -168,6 +192,7 @@ const fileSlice = createSlice({
         if (action.payload) {
           state.filePath = action.payload.filePath;
           state.fileName = action.payload.fileName;
+          state.isUntitled = false;
         }
         state.hasUnsavedChanges = false;
         updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
@@ -175,9 +200,17 @@ const fileSlice = createSlice({
       .addCase(saveFileAs.fulfilled, (state, action) => {
         state.filePath = action.payload.filePath;
         state.fileName = action.payload.fileName;
+        state.isUntitled = false;
         state.hasUnsavedChanges = false;
         updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
-      });
+      })
+      .addCase('image/addImage', markDocumentUnsaved)
+      .addCase('image/removeImage', markDocumentUnsaved)
+      .addCase('image/updateImage', markDocumentUnsaved)
+      .addCase('annotation/addAnnotation', markDocumentUnsaved)
+      .addCase('annotation/updateAnnotation', markDocumentUnsaved)
+      .addCase('annotation/deleteSelectedAnnotations', markDocumentUnsaved)
+      .addCase('annotation/clearAllAnnotations', markDocumentUnsaved);
   },
 });
 
@@ -187,9 +220,10 @@ export default fileSlice.reducer;
 
 export const selectFilePath = (state: RootState) => state.file.filePath;
 export const selectFileName = (state: RootState) => state.file.fileName;
+export const selectIsUntitled = (state: RootState) => state.file.isUntitled;
 export const selectIsFileOpened = (state: RootState) =>
   selectFileName(state) !== '' || selectFilePath(state) !== null;
 export const selectHasUnsavedChanges = (state: RootState) => state.file.hasUnsavedChanges;
 export const selectCanSave = (state: RootState) =>
-  selectIsFileOpened(state) && state.file.hasUnsavedChanges;
+  selectIsFileOpened(state) && (state.file.hasUnsavedChanges || state.file.isUntitled);
 export const selectCanPerformFileOperation = (state: RootState) => selectIsFileOpened(state);

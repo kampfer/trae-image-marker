@@ -28,7 +28,7 @@ const imageSlice = createSlice({
       state.activeImageId = action.payload.id;
     },
     removeImage: (state, action: PayloadAction<string>) => {
-      const index = state.images.findIndex(image => image.id === action.payload);
+      const index = state.images.findIndex((image) => image.id === action.payload);
       if (index !== -1) {
         state.images.splice(index, 1);
         if (state.activeImageId === action.payload) {
@@ -41,17 +41,28 @@ const imageSlice = createSlice({
     },
     updateImage: (state, action: PayloadAction<{ id: string; updates: Partial<ImageInfo> }>) => {
       const { id, updates } = action.payload;
-      const image = state.images.find(image => image.id === id);
+      const image = state.images.find((image) => image.id === id);
       if (image) {
         Object.assign(image, updates);
       }
+    },
+    setImages: (state, action: PayloadAction<ImageInfo[]>) => {
+      state.images = action.payload;
+      state.activeImageId = action.payload[0]?.id ?? null;
     },
     clearImages: (state) => {
       state.images = [];
       state.activeImageId = null;
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase('file/createNewFile', (state) => {
+      state.images = [];
+      state.activeImageId = null;
+    });
+  },
 });
 
-export const { addImage, removeImage, setActiveImage, updateImage, clearImages } = imageSlice.actions;
+export const { addImage, removeImage, setActiveImage, updateImage, setImages, clearImages } =
+  imageSlice.actions;
 export default imageSlice.reducer;

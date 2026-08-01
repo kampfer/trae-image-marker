@@ -16,7 +16,10 @@ const historySlice = createSlice({
   name: 'history',
   initialState,
   reducers: {
-    addHistory: (state, action: PayloadAction<{ imageId: string; annotations: AnnotationType[] }>) => {
+    addHistory: (
+      state,
+      action: PayloadAction<{ imageId: string; annotations: AnnotationType[] }>
+    ) => {
       const { imageId, annotations } = action.payload;
       if (!state.pastByImage[imageId]) {
         state.pastByImage[imageId] = [];
@@ -60,8 +63,18 @@ const historySlice = createSlice({
       state.pastByImage[imageId] = [];
       state.futureByImage[imageId] = [];
     },
+    clearAllHistory: (state) => {
+      state.pastByImage = {};
+      state.futureByImage = {};
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase('file/createNewFile', (state) => {
+      state.pastByImage = {};
+      state.futureByImage = {};
+    });
   },
 });
 
-export const { addHistory, undo, redo, clearHistory } = historySlice.actions;
+export const { addHistory, undo, redo, clearHistory, clearAllHistory } = historySlice.actions;
 export default historySlice.reducer;
