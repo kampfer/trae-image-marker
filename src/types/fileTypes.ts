@@ -30,3 +30,15 @@ export interface ShowOpenDialogOptions {
 export interface ShowOpenDialogResult {
   filePaths: string[];
 }
+
+/**
+ * 图片元数据
+ */
+export interface ImageInfo {
+  id: string;
+  name: string;
+  path: string;
+  width: number;
+  height: number;
+  createdAt: string;
+}

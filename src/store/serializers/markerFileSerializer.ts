@@ -1,5 +1,5 @@
 import { AnnotationType } from '../slices/annotationSlice';
-import { ImageInfo } from '../slices/imageSlice';
+import type { ImageInfo } from '../../types/fileTypes';
 
 export interface MarkerFile {
   version: string;
@@ -16,10 +16,13 @@ export interface MarkerFile {
   updatedAt: string;
 }
 
-export const serializeMarkerFile = (images: ImageInfo[], annotationsByImage: Record<string, AnnotationType[]>): string => {
+export const serializeMarkerFile = (
+  images: ImageInfo[],
+  annotationsByImage: Record<string, AnnotationType[]>
+): string => {
   const markerFile: MarkerFile = {
     version: '1.0',
-    images: images.map(image => ({
+    images: images.map((image) => ({
       id: image.id,
       name: image.name,
       path: image.path,
@@ -34,12 +37,14 @@ export const serializeMarkerFile = (images: ImageInfo[], annotationsByImage: Rec
   return JSON.stringify(markerFile, null, 2);
 };
 
-export const deserializeMarkerFile = (json: string): {
+export const deserializeMarkerFile = (
+  json: string
+): {
   images: ImageInfo[];
   annotationsByImage: Record<string, AnnotationType[]>;
 } => {
   const markerFile = JSON.parse(json) as MarkerFile;
-  const images: ImageInfo[] = markerFile.images.map(image => ({
+  const images: ImageInfo[] = markerFile.images.map((image) => ({
     id: image.id,
     name: image.name,
     path: image.path,
@@ -48,7 +53,7 @@ export const deserializeMarkerFile = (json: string): {
     createdAt: image.createdAt || new Date().toISOString(),
   }));
   const annotationsByImage: Record<string, AnnotationType[]> = {};
-  markerFile.images.forEach(image => {
+  markerFile.images.forEach((image) => {
     annotationsByImage[image.id] = image.annotations;
   });
   return { images, annotationsByImage };

@@ -5,7 +5,7 @@ import { deserializeMarkerFile, serializeMarkerFile } from '../serializers/marke
 import { setAnnotations, type AnnotationType } from './annotationSlice';
 import { resetCanvas } from './canvasSlice';
 import { clearAllHistory } from './historySlice';
-import { setImages, type ImageInfo } from './imageSlice';
+import { addImage, setImages, type ImageInfo } from './imageSlice';
 
 const updateWindowTitle = (
   filePath: string | null,
@@ -204,7 +204,7 @@ const fileSlice = createSlice({
         state.hasUnsavedChanges = false;
         updateWindowTitle(state.filePath, state.fileName, state.hasUnsavedChanges);
       })
-      .addCase('image/addImage', markDocumentUnsaved)
+      .addCase(addImage.fulfilled, markDocumentUnsaved)
       .addCase('image/removeImage', markDocumentUnsaved)
       .addCase('image/updateImage', markDocumentUnsaved)
       .addCase('annotation/addAnnotation', markDocumentUnsaved)

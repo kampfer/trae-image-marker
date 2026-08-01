@@ -6,6 +6,8 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 
+import type { ImageInfo } from '../types/fileTypes';
+
 /**
  * IPC 通道名称
  */
@@ -14,6 +16,7 @@ const IpcChannels = {
   FILE_SHOW_OPEN_DIALOG: 'file:show-open-dialog',
   FILE_READ: 'file:read',
   FILE_WRITE: 'file:write',
+  IMAGE_PICK: 'image:pick',
   WINDOW_UPDATE_TITLE: 'window:update-title',
 } as const;
 
@@ -41,6 +44,7 @@ interface ElectronAPI {
     options: ShowSaveDialogOptions
   ) => Promise<{ filePath: string | null; fileName: string | null }>;
   showOpenDialog: (options: ShowOpenDialogOptions) => Promise<{ filePaths: string[] }>;
+  pickImage: () => Promise<ImageInfo | null>;
   readFile: (filePath: string) => Promise<string>;
   writeFile: (filePath: string, content: string) => Promise<void>;
   updateWindowTitle: (title: string) => Promise<void>;
@@ -55,6 +59,7 @@ const createElectronAPI = (): ElectronAPI => {
       ipcRenderer.invoke(IpcChannels.FILE_SHOW_SAVE_DIALOG, options),
     showOpenDialog: (options: ShowOpenDialogOptions) =>
       ipcRenderer.invoke(IpcChannels.FILE_SHOW_OPEN_DIALOG, options),
+    pickImage: () => ipcRenderer.invoke(IpcChannels.IMAGE_PICK),
     readFile: (filePath: string) => ipcRenderer.invoke(IpcChannels.FILE_READ, filePath),
     writeFile: (filePath: string, content: string) =>
       ipcRenderer.invoke(IpcChannels.FILE_WRITE, filePath, content),

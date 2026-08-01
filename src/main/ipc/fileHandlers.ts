@@ -6,7 +6,13 @@
 import { ipcMain, BrowserWindow } from 'electron';
 
 import type { ShowSaveDialogOptions, ShowOpenDialogOptions } from '../../types/fileTypes';
-import { showSaveDialog, showOpenDialog, readFile, writeFile } from '../services/fileService';
+import {
+  pickImage,
+  readFile,
+  showOpenDialog,
+  showSaveDialog,
+  writeFile,
+} from '../services/fileService';
 
 import { IpcChannels } from './channels';
 
@@ -20,6 +26,10 @@ export const registerFileHandlers = (): void => {
 
   ipcMain.handle(IpcChannels.FILE_SHOW_OPEN_DIALOG, async (_, options: ShowOpenDialogOptions) => {
     return showOpenDialog(options);
+  });
+
+  ipcMain.handle(IpcChannels.IMAGE_PICK, () => {
+    return pickImage();
   });
 
   ipcMain.handle(IpcChannels.FILE_READ, async (_, filePath: string) => {

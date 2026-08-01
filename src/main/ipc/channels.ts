@@ -8,6 +8,7 @@ export const IpcChannels = {
   FILE_SHOW_OPEN_DIALOG: 'file:show-open-dialog',
   FILE_READ: 'file:read',
   FILE_WRITE: 'file:write',
+  IMAGE_PICK: 'image:pick',
   WINDOW_UPDATE_TITLE: 'window:update-title',
 } as const;
 

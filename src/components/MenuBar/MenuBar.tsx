@@ -22,6 +22,7 @@ import {
   selectIsFileOpened,
 } from '../../store/slices/fileSlice';
 import { undo, redo } from '../../store/slices/historySlice';
+import { addImage } from '../../store/slices/imageSlice';
 
 import styles from './MenuBar.module.css';
 
@@ -75,7 +76,7 @@ class MenuBar extends React.Component<MenuBarProps> {
   };
 
   handleAddImageToFile = () => {
-    console.log('添加图片');
+    this.props.dispatch(addImage());
   };
 
   handleRemoveImageFromFile = () => {

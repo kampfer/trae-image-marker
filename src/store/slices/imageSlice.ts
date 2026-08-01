@@ -1,13 +1,8 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface ImageInfo {
-  id: string;
-  name: string;
-  path: string;
-  width: number;
-  height: number;
-  createdAt: string;
-}
+import type { ImageInfo } from '../../types/fileTypes';
+
+export type { ImageInfo } from '../../types/fileTypes';
 
 interface ImageState {
   images: ImageInfo[];
@@ -19,14 +14,28 @@ const initialState: ImageState = {
   activeImageId: null,
 };
 
+export const addImage = createAsyncThunk<ImageInfo, void, { rejectValue: string }>(
+  'image/addImage',
+  async (_, { rejectWithValue }) => {
+    try {
+      const image = await window.electronAPI.pickImage();
+
+      if (!image) {
+        return rejectWithValue('添加图片已取消');
+      }
+
+      return image;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '添加图片失败';
+      return rejectWithValue(message);
+    }
+  }
+);
+
 const imageSlice = createSlice({
   name: 'image',
   initialState,
   reducers: {
-    addImage: (state, action: PayloadAction<ImageInfo>) => {
-      state.images.push(action.payload);
-      state.activeImageId = action.payload.id;
-    },
     removeImage: (state, action: PayloadAction<string>) => {
       const index = state.images.findIndex((image) => image.id === action.payload);
       if (index !== -1) {
@@ -56,13 +65,18 @@ const imageSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase('file/createNewFile', (state) => {
-      state.images = [];
-      state.activeImageId = null;
-    });
+    builder
+      .addCase(addImage.fulfilled, (state, action) => {
+        state.images.push(action.payload);
+        state.activeImageId = action.payload.id;
+      })
+      .addCase('file/createNewFile', (state) => {
+        state.images = [];
+        state.activeImageId = null;
+      });
   },
 });
 
-export const { addImage, removeImage, setActiveImage, updateImage, setImages, clearImages } =
+export const { removeImage, setActiveImage, updateImage, setImages, clearImages } =
   imageSlice.actions;
 export default imageSlice.reducer;

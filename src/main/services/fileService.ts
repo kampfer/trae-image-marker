@@ -3,11 +3,13 @@
  * 负责封装所有文件相关的操作系统交互
  */
 
-import { dialog, BrowserWindow } from 'electron';
+import { BrowserWindow, dialog, nativeImage } from 'electron';
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
 import type {
+  ImageInfo,
   ShowSaveDialogOptions,
   ShowSaveDialogResult,
   ShowOpenDialogOptions,
@@ -104,4 +106,45 @@ export const writeFile = async (filePath: string, content: string): Promise<void
   }
 
   await fs.promises.writeFile(filePath, content, 'utf-8');
+};
+
+/**
+ * 选择图片并读取其基础元数据。
+ */
+export const pickImage = async (): Promise<ImageInfo | null> => {
+  const result = await showOpenDialog({
+    title: '添加图片',
+    filters: [
+      {
+        name: '图片文件',
+        extensions: ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'webp'],
+      },
+    ],
+    properties: ['openFile'],
+  });
+
+  if (result.filePaths.length === 0) {
+    return null;
+  }
+
+  const imagePath = result.filePaths[0];
+  const image = nativeImage.createFromPath(imagePath);
+
+  if (image.isEmpty()) {
+    throw new Error('无法读取所选图片');
+  }
+
+  const { width, height } = image.getSize();
+  if (width <= 0 || height <= 0) {
+    throw new Error('所选图片尺寸无效');
+  }
+
+  return {
+    id: randomUUID(),
+    name: path.basename(imagePath),
+    path: imagePath,
+    width,
+    height,
+    createdAt: new Date().toISOString(),
+  };
 };
