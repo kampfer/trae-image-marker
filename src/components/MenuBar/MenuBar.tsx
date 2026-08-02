@@ -22,7 +22,7 @@ import {
   selectIsFileOpened,
 } from '../../store/slices/fileSlice';
 import { undo, redo } from '../../store/slices/historySlice';
-import { addImage } from '../../store/slices/imageSlice';
+import { addImage, removeImage } from '../../store/slices/imageSlice';
 
 import styles from './MenuBar.module.css';
 
@@ -80,8 +80,10 @@ class MenuBar extends React.Component<MenuBarProps> {
   };
 
   handleRemoveImageFromFile = () => {
-    if (this.props.activeImageId) {
-      console.log('删除图片', this.props.activeImageId);
+    const { activeImageId, dispatch } = this.props;
+
+    if (activeImageId) {
+      dispatch(removeImage(activeImageId));
     }
   };
 

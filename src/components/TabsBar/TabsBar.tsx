@@ -2,40 +2,41 @@ import { Tabs } from 'antd';
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { RootState, AppDispatch } from '../../store';
-import { setActiveImage, removeImage } from '../../store/slices/imageSlice';
+import { AppDispatch, RootState } from '../../store';
+import { selectActiveImageId, selectImages } from '../../store/selectors';
+import { addImage, removeImage, setActiveImage } from '../../store/slices/imageSlice';
+import type { ImageInfo } from '../../types/fileTypes';
 import WorkSpace from '../WorkSpace';
 
 import styles from './TabsBar.module.css';
 
 interface TabsBarProps {
-  images: Array<{
-    id: string;
-    name: string;
-    path: string;
-    width: number;
-    height: number;
-    createdAt: string;
-  }>;
+  images: ImageInfo[];
   activeImageId: string | null;
   dispatch: AppDispatch;
 }
+
+type TabEditAction = 'add' | 'remove';
+type TabEditTarget = string | React.MouseEvent | React.KeyboardEvent;
 
 class TabsBar extends React.Component<TabsBarProps> {
   handleTabChange = (key: string) => {
     this.props.dispatch(setActiveImage(key));
   };
 
-  handleTabClose = (key: string) => {
-    this.props.dispatch(removeImage(key));
+  handleTabEdit = (targetKey: TabEditTarget, action: TabEditAction) => {
+    if (action === 'add') {
+      this.props.dispatch(addImage());
+      return;
+    }
+
+    if (typeof targetKey === 'string') {
+      this.props.dispatch(removeImage(targetKey));
+    }
   };
 
   render() {
     const { images, activeImageId } = this.props;
-
-    if (images.length === 0) {
-      return null;
-    }
 
     const items = images.map((image) => ({
       key: image.id,
@@ -47,10 +48,10 @@ class TabsBar extends React.Component<TabsBarProps> {
     return (
       <div className={styles.tabsBar}>
         <Tabs
-          activeKey={activeImageId || ''}
+          activeKey={activeImageId ?? undefined}
           items={items}
           onChange={this.handleTabChange}
-          onEdit={this.handleTabClose}
+          onEdit={this.handleTabEdit}
           type="editable-card"
           size="small"
           className={styles.tabs}
@@ -61,8 +62,8 @@ class TabsBar extends React.Component<TabsBarProps> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-  images: state.image.images,
-  activeImageId: state.image.activeImageId,
+  images: selectImages(state),
+  activeImageId: selectActiveImageId(state),
 });
 
 const mapDispatchToProps = (dispatch: AppDispatch) => ({
