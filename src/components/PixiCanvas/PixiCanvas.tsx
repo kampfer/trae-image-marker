@@ -52,6 +52,8 @@ interface PixiCanvasState {
 class PixiCanvas extends React.Component<PixiCanvasProps, PixiCanvasState> {
   private canvasContainerRef: React.RefObject<HTMLDivElement> = React.createRef();
   private app: Application | null = null;
+  private isUnmounted = false;
+  private resizeObserver: ResizeObserver | null = null;
 
   constructor(props: PixiCanvasProps) {
     super(props);
@@ -61,45 +63,21 @@ class PixiCanvas extends React.Component<PixiCanvasProps, PixiCanvasState> {
     };
   }
 
-  async componentDidMount() {
-    if (this.canvasContainerRef.current) {
-      this.app = new Application();
-      await this.app.init({
-        width: this.canvasContainerRef.current.clientWidth,
-        height: this.canvasContainerRef.current.clientHeight,
-        backgroundColor: 0x1e1e1e,
-        resolution: window.devicePixelRatio || 1,
-        antialias: true,
-      });
-
-      if (this.app && this.app.canvas) {
-        this.canvasContainerRef.current.appendChild(this.app.canvas as HTMLCanvasElement);
-        window.addEventListener('resize', this.handleResize);
-        this.renderCanvas();
-      } else {
-        this.setState({
-          error: 'PixiJS application initialization failed: canvas not available',
-          isLoading: false,
-        });
-      }
-    } else {
-      this.setState({ error: '画布容器不存在', isLoading: false });
-    }
+  componentDidMount() {
+    this.isUnmounted = false;
+    this.initializePixi();
   }
 
   componentWillUnmount() {
+    this.isUnmounted = true;
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
     window.removeEventListener('resize', this.handleResize);
-    if (this.app) {
-      if (this.app.canvas && this.canvasContainerRef.current) {
-        const canvasElement = this.app.canvas as HTMLCanvasElement;
-        if (canvasElement.parentNode === this.canvasContainerRef.current) {
-          this.canvasContainerRef.current.removeChild(canvasElement);
-        }
-      }
-      if (this.app.stage) {
-        this.app.stage.removeChildren();
-      }
-      this.app = null;
+
+    const app = this.app;
+    this.app = null;
+    if (app) {
+      this.destroyApp(app);
     }
   }
 
@@ -116,22 +94,115 @@ class PixiCanvas extends React.Component<PixiCanvasProps, PixiCanvasState> {
     }
   }
 
+  private initializePixi = () => {
+    const container = this.canvasContainerRef.current;
+    if (!container) {
+      this.setState({ error: '画布容器不存在', isLoading: false });
+      return;
+    }
+
+    if (container.clientWidth === 0 || container.clientHeight === 0) {
+      this.resizeObserver?.disconnect();
+      this.resizeObserver = new ResizeObserver(() => {
+        if (
+          this.isUnmounted ||
+          this.app ||
+          container.clientWidth === 0 ||
+          container.clientHeight === 0
+        ) {
+          return;
+        }
+
+        this.resizeObserver?.disconnect();
+        this.resizeObserver = null;
+        this.initializePixi();
+      });
+      this.resizeObserver.observe(container);
+      return;
+    }
+
+    const app = new Application();
+    this.app = app;
+
+    app
+      .init({
+        width: container.clientWidth,
+        height: container.clientHeight,
+        backgroundColor: 0x1e1e1e,
+        resolution: window.devicePixelRatio || 1,
+        antialias: true,
+      })
+      .then(() => {
+        if (this.isUnmounted || this.app !== app) {
+          this.destroyApp(app);
+          return;
+        }
+
+        const canvasElement = app.renderer?.canvas;
+        if (!canvasElement) {
+          this.app = null;
+          this.destroyApp(app);
+          this.setState({
+            error: 'PixiJS application initialization failed: canvas not available',
+            isLoading: false,
+          });
+          return;
+        }
+
+        container.appendChild(canvasElement);
+        window.addEventListener('resize', this.handleResize);
+        this.resizeObserver?.disconnect();
+        this.resizeObserver = new ResizeObserver(this.handleResize);
+        this.resizeObserver.observe(container);
+        this.renderCanvas();
+      })
+      .catch(() => {
+        if (this.isUnmounted || this.app !== app) {
+          this.destroyApp(app);
+          return;
+        }
+
+        this.app = null;
+        this.destroyApp(app);
+        this.setState({
+          error: 'PixiJS application initialization failed',
+          isLoading: false,
+        });
+      });
+  };
+
+  private destroyApp = (app: Application) => {
+    const renderer = app.renderer;
+    if (!renderer) {
+      app.stage.removeChildren();
+      return;
+    }
+
+    const canvasElement = renderer.canvas;
+    const container = this.canvasContainerRef.current;
+    if (container && canvasElement.parentNode === container) {
+      container.removeChild(canvasElement);
+    }
+
+    app.destroy();
+  };
+
   private handleResize = () => {
-    if (this.app && this.canvasContainerRef.current) {
-      this.app.renderer.resize(
-        this.canvasContainerRef.current.clientWidth,
-        this.canvasContainerRef.current.clientHeight
-      );
+    const app = this.app;
+    const container = this.canvasContainerRef.current;
+    if (app?.renderer && container && container.clientWidth > 0 && container.clientHeight > 0) {
+      app.renderer.resize(container.clientWidth, container.clientHeight);
       this.renderCanvas();
     }
   };
 
   private renderCanvas = () => {
-    if (!this.app) return;
+    const app = this.app;
+    if (!app || !app.renderer) return;
 
     const { activeImage, annotations, zoom, rotation } = this.props;
 
-    this.app.stage.removeChildren();
+    app.stage.removeChildren();
 
     if (!activeImage) {
       const text = new Text({
@@ -142,10 +213,10 @@ class PixiCanvas extends React.Component<PixiCanvasProps, PixiCanvasState> {
         },
       });
       text.position.set(
-        this.app.screen.width / 2 - text.width / 2,
-        this.app.screen.height / 2 - text.height / 2
+        app.screen.width / 2 - text.width / 2,
+        app.screen.height / 2 - text.height / 2
       );
-      this.app.stage.addChild(text);
+      app.stage.addChild(text);
       this.setState({ isLoading: false });
       return;
     }
@@ -153,12 +224,12 @@ class PixiCanvas extends React.Component<PixiCanvasProps, PixiCanvasState> {
     this.setState({ isLoading: true });
 
     const imageContainer = new Container();
-    this.app.stage.addChild(imageContainer);
+    app.stage.addChild(imageContainer);
 
     const texture = PIXI.Texture.from(activeImage.path);
     const sprite = new Sprite(texture);
     sprite.anchor.set(0.5);
-    sprite.position.set(this.app.screen.width / 2, this.app.screen.height / 2);
+    sprite.position.set(app.screen.width / 2, app.screen.height / 2);
     sprite.scale.set(((zoom || 100) / 100) * 0.5);
     sprite.rotation = ((rotation || 0) * Math.PI) / 180;
     imageContainer.addChild(sprite);

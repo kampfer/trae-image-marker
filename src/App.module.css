@@ -1,11 +1,18 @@
 .appLayout {
+  display: flex;
+  flex-direction: column;
   height: 100vh;
   width: 100vw;
+  min-height: 0;
 }
 
 .appHeader {
   height: 32px;
   padding: 0;
+}
+
+.appLayout :global(.ant-layout-content) {
+  min-height: 0;
 }
 
 .appFooter {
