@@ -91,7 +91,7 @@ class Toolbar extends React.Component<ToolbarProps, ToolbarState> {
 
     return (
       <div className={styles.toolbar}>
-        <FloatButton.Group shape="circle" className={styles.buttonGroup}>
+        <FloatButton.Group shape="square" className={styles.buttonGroup}>
           <Tooltip title="水平线段" position="left">
             <FloatButton
               icon={<span className={styles.icon}>—</span>}
@@ -133,7 +133,7 @@ class Toolbar extends React.Component<ToolbarProps, ToolbarState> {
           </Tooltip>
         </FloatButton.Group>
 
-        <FloatButton.Group shape="circle" className={styles.buttonGroup}>
+        <FloatButton.Group shape="square" className={styles.buttonGroup}>
           <Tooltip title="放大 (Ctrl++)" position="left">
             <FloatButton
               icon={<span className={styles.icon}>+</span>}
@@ -160,7 +160,7 @@ class Toolbar extends React.Component<ToolbarProps, ToolbarState> {
           </Tooltip>
         </FloatButton.Group>
 
-        <FloatButton.Group shape="circle" className={styles.buttonGroup}>
+        <FloatButton.Group shape="square" className={styles.buttonGroup}>
           <Tooltip title="顺时针旋转 (Ctrl+R)" position="left">
             <FloatButton
               icon={<span className={styles.icon}>↻</span>}
@@ -175,7 +175,7 @@ class Toolbar extends React.Component<ToolbarProps, ToolbarState> {
           </Tooltip>
         </FloatButton.Group>
 
-        <FloatButton.Group shape="circle" className={styles.buttonGroup}>
+        <FloatButton.Group shape="square" className={styles.buttonGroup}>
           <Tooltip title="辅助线开关" position="left">
             <FloatButton
               icon={<span className={styles.icon}>⊥</span>}
