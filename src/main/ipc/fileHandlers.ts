@@ -9,6 +9,7 @@ import type { ShowSaveDialogOptions, ShowOpenDialogOptions } from '../../types/f
 import {
   pickImage,
   readFile,
+  readImageDataUrl,
   showOpenDialog,
   showSaveDialog,
   writeFile,
@@ -30,6 +31,10 @@ export const registerFileHandlers = (): void => {
 
   ipcMain.handle(IpcChannels.IMAGE_PICK, () => {
     return pickImage();
+  });
+
+  ipcMain.handle(IpcChannels.IMAGE_READ_DATA_URL, async (_, filePath: string) => {
+    return readImageDataUrl(filePath);
   });
 
   ipcMain.handle(IpcChannels.FILE_READ, async (_, filePath: string) => {

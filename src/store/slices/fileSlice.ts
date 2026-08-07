@@ -56,29 +56,34 @@ export const createNewFile = createAction('file/createNewFile', () => ({
 export const openFile = createAsyncThunk<
   { filePath: string; fileName: string; content: string },
   void,
-  { state: RootState; dispatch: AppDispatch }
+  { state: RootState; dispatch: AppDispatch; rejectValue: string }
 >('file/openFile', async (_, { dispatch, rejectWithValue }) => {
-  const result = await window.electronAPI.showOpenDialog({
-    title: '打开标记文件',
-    filters: [{ name: '标记文件', extensions: ['json'] }],
-    properties: ['openFile'],
-  });
+  try {
+    const result = await window.electronAPI.showOpenDialog({
+      title: '打开标记文件',
+      filters: [{ name: '标记文件', extensions: ['json'] }],
+      properties: ['openFile'],
+    });
 
-  if (!result || result.filePaths.length === 0) {
-    return rejectWithValue('打开文件已取消');
+    if (!result || result.filePaths.length === 0) {
+      return rejectWithValue('打开文件已取消');
+    }
+
+    const filePath = result.filePaths[0];
+    const fileName = filePath.split(/[\\/]/).pop() || 'unknown';
+    const content = await window.electronAPI.readFile(filePath);
+    const { images, annotationsByImage } = deserializeMarkerFile(content, filePath);
+
+    dispatch(setImages(images));
+    dispatch(setAnnotations(annotationsByImage));
+    dispatch(clearAllHistory());
+    dispatch(resetCanvas());
+
+    return { filePath, fileName, content };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '打开标记文件失败';
+    return rejectWithValue(message);
   }
-
-  const filePath = result.filePaths[0];
-  const fileName = filePath.split(/[\\/]/).pop() || 'unknown';
-  const content = await window.electronAPI.readFile(filePath);
-  const { images, annotationsByImage } = deserializeMarkerFile(content);
-
-  dispatch(setImages(images));
-  dispatch(setAnnotations(annotationsByImage));
-  dispatch(clearAllHistory());
-  dispatch(resetCanvas());
-
-  return { filePath, fileName, content };
 });
 
 export const saveFile = createAsyncThunk<

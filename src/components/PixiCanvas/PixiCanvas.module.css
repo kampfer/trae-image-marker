@@ -10,20 +10,32 @@
   overflow: hidden;
 }
 
-.loading {
+.canvasContainer canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.loading,
+.empty,
+.error {
   position: absolute;
   top: 50%;
   left: 50%;
+  z-index: 1;
   transform: translate(-50%, -50%);
   color: #969696;
   font-size: 14px;
+  text-align: center;
+}
+
+.loading {
   background-color: rgba(30, 30, 30, 0.8);
   padding: 10px 20px;
   border-radius: 4px;
 }
 
-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
+.error {
+  max-width: 80%;
+  color: #f48771;
 }

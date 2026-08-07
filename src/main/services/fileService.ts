@@ -148,3 +148,33 @@ export const pickImage = async (): Promise<ImageInfo | null> => {
     createdAt: new Date().toISOString(),
   };
 };
+/**
+ * 读取图片并转换为渲染进程可安全加载的 Data URL。
+ */
+export const readImageDataUrl = async (filePath: string): Promise<string> => {
+  if (!filePath) {
+    throw new Error('图片路径不能为空');
+  }
+
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`图片文件不存在: ${filePath}`);
+  }
+
+  const extension = path.extname(filePath).toLowerCase();
+  const mimeTypes: Record<string, string> = {
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.bmp': 'image/bmp',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+  };
+  const mimeType = mimeTypes[extension];
+
+  if (!mimeType) {
+    throw new Error(`不支持的图片格式: ${extension || 'unknown'}`);
+  }
+
+  const buffer = await fs.promises.readFile(filePath);
+  return `data:${mimeType};base64,${buffer.toString('base64')}`;
+};

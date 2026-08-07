@@ -18,6 +18,7 @@ declare global {
         properties?: Array<'openFile' | 'multiSelections'>;
       }) => Promise<{ filePaths: string[] } | null>;
       pickImage: () => Promise<ImageInfo | null>;
+      readImageDataUrl: (filePath: string) => Promise<string>;
       readFile: (filePath: string) => Promise<string>;
       writeFile: (filePath: string, content: string) => Promise<void>;
       updateWindowTitle: (title: string) => Promise<void>;

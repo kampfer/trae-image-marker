@@ -17,6 +17,7 @@ const IpcChannels = {
   FILE_READ: 'file:read',
   FILE_WRITE: 'file:write',
   IMAGE_PICK: 'image:pick',
+  IMAGE_READ_DATA_URL: 'image:read-data-url',
   WINDOW_UPDATE_TITLE: 'window:update-title',
 } as const;
 
@@ -45,6 +46,7 @@ interface ElectronAPI {
   ) => Promise<{ filePath: string | null; fileName: string | null }>;
   showOpenDialog: (options: ShowOpenDialogOptions) => Promise<{ filePaths: string[] }>;
   pickImage: () => Promise<ImageInfo | null>;
+  readImageDataUrl: (filePath: string) => Promise<string>;
   readFile: (filePath: string) => Promise<string>;
   writeFile: (filePath: string, content: string) => Promise<void>;
   updateWindowTitle: (title: string) => Promise<void>;
@@ -60,6 +62,8 @@ const createElectronAPI = (): ElectronAPI => {
     showOpenDialog: (options: ShowOpenDialogOptions) =>
       ipcRenderer.invoke(IpcChannels.FILE_SHOW_OPEN_DIALOG, options),
     pickImage: () => ipcRenderer.invoke(IpcChannels.IMAGE_PICK),
+    readImageDataUrl: (filePath: string) =>
+      ipcRenderer.invoke(IpcChannels.IMAGE_READ_DATA_URL, filePath),
     readFile: (filePath: string) => ipcRenderer.invoke(IpcChannels.FILE_READ, filePath),
     writeFile: (filePath: string, content: string) =>
       ipcRenderer.invoke(IpcChannels.FILE_WRITE, filePath, content),

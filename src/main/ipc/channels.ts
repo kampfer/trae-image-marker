@@ -9,6 +9,7 @@ export const IpcChannels = {
   FILE_READ: 'file:read',
   FILE_WRITE: 'file:write',
   IMAGE_PICK: 'image:pick',
+  IMAGE_READ_DATA_URL: 'image:read-data-url',
   WINDOW_UPDATE_TITLE: 'window:update-title',
 } as const;
 
